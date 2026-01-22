@@ -1,7 +1,3 @@
-# Project Setup Instructions
-
-This repository must be cloned into the Intel FPGA Lite 18.1 directory structure in order for Quartus project paths to resolve correctly.
-
 ## Cloning the Repository
 
 ### Recommended Directory Structure
