@@ -4,11 +4,11 @@
 
 The expected base path is:
 
-C:\intelFPGA_lite\18.1\<workspace folder>\
+C:\intelFPGA_lite\18.1\ < Workspace Folder > \
 
 If the there is no `<workspace folder>` folder, you must create one in order to clone the repo.
 
-### Steps
+### Steps (example)
 
 1. cd C:\intelFPGA_lite\18.1\elec374
-2. git clone [<REPO_URL>](https://github.com/BenMalvern/ELEC374_CPU)
+2. git clone https://github.com/BenMalvern/ELEC374_CPU
