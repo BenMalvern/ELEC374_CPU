@@ -1,0 +1,26 @@
+# Quartus generated
+db/
+incremental_db/
+output_files/
+simulation/
+
+# ModelSim / Questa
+work/
+modelsim.ini
+vsim.wlf
+*.wlf
+
+# Quartus user/session files
+*.qws
+*.qdf
+
+# Temporary / backup files
+*.bak
+*.tmp
+*.log
+*.swp
+*.orig
+
+# OS junk
+.DS_Store
+Thumbs.db
