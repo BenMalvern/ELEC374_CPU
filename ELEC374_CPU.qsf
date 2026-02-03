@@ -41,13 +41,15 @@ set_global_assignment -name DEVICE 5CGXFC7C7F23C8
 set_global_assignment -name TOP_LEVEL_ENTITY ELEC374_CPU
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "09:39:07  JANUARY 20, 2026"
-set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
-set_global_assignment -name VERILOG_FILE tutorial_tb.v
-set_global_assignment -name VERILOG_FILE register.v
-set_global_assignment -name VERILOG_FILE DataPath.v
-set_global_assignment -name VERILOG_FILE Bus.v
-set_global_assignment -name VERILOG_FILE adder.v
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.1 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name VERILOG_FILE "Tutorial 1/tutorial_tb.v"
+set_global_assignment -name VERILOG_FILE "Tutorial 1/register.v"
+set_global_assignment -name VERILOG_FILE "Tutorial 1/DataPath.v"
+set_global_assignment -name VERILOG_FILE "Tutorial 1/Bus.v"
+set_global_assignment -name VERILOG_FILE "Tutorial 1/adder.v"
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
