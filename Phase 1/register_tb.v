@@ -4,21 +4,21 @@ module register_tb;
 
   // -----------------------------
   // Parameters
-  // -----------------------------
   localparam DATA_WIDTH = 32;
+  // -----------------------------
+
 
   // -----------------------------
   // Testbench Signals
-  // -----------------------------
   reg  clock;
   reg  clear;
   reg  enable;
   reg  [DATA_WIDTH-1:0] BUS_MUX_OUT;  // Input to register
   wire [DATA_WIDTH-1:0] BUS_MUX_IN;   // Output from register
+  // -----------------------------
 
-  // -----------------------------
+
   // Instantiate DUT
-  // -----------------------------
   REGISTER #(
     .DATA_WIDTH(DATA_WIDTH),
     .INIT(32'd0)
@@ -30,20 +30,16 @@ module register_tb;
     .enable(enable)
   );
 
-  // -----------------------------
   // Clock Generator (10ns period)
-  // -----------------------------
   initial begin
     clock = 0;
     forever #10 clock = ~clock;
   end
 
-  // -----------------------------
   // Stimulus
-  // -----------------------------
   initial begin
 
-    $display("Starting Register Test...");
+    $display("Register Test:");
 
     // Initialize inputs
     clear = 0;
@@ -51,9 +47,7 @@ module register_tb;
     BUS_MUX_OUT = 0;
 
 
-    // -----------------------------
     // Test 1: Load value when enable = 1
-    // -----------------------------
     @(negedge clock);
     enable = 1;
     BUS_MUX_OUT = 32'd10;
@@ -64,9 +58,7 @@ module register_tb;
     else
       $display("PASS: Enable load works");
 
-    // -----------------------------
     // Test 2: Load second value
-    // -----------------------------
     @(negedge clock);
     BUS_MUX_OUT = 32'd20;
 
@@ -76,9 +68,7 @@ module register_tb;
     else
       $display("PASS: Second load works");
 
-    // -----------------------------
     // Test 3: Hold when enable = 0
-    // -----------------------------
     @(negedge clock);
     enable = 0;
     BUS_MUX_OUT = 32'd30;
@@ -90,9 +80,7 @@ module register_tb;
       $display("PASS: Hold works");
 
 	 
-	 // -----------------------------
     // Test 4: Clear
-    // -----------------------------
     @(negedge clock);
     clear = 1;
 
