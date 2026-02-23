@@ -1,10 +1,10 @@
-module register #(parameter DATA_WIDTH_IN = 8, DATA_WIDTH_OUT = 8, INIT = 8'h0)(
+module reg #(parameter DATA_WIDTH_IN = 8, DATA_WIDTH_OUT = 8, INIT = 8'h0)(
 	input clear, clock, enable, 
 	input [DATA_WIDTH_IN-1:0]BusMuxOut,
 	output wire [DATA_WIDTH_OUT-1:0]BusMuxIn
 );
 reg [DATA_WIDTH_IN-1:0]q;
-initial q = INIT;
+ q = INIT;
 always @ (posedge clock)
 		begin 
 			if (clear) begin
