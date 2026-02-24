@@ -1,0 +1,49 @@
+module mdr_tb;
+
+reg clk;
+reg clr;
+reg MDRin;
+reg Read;
+reg [31:0] Mdatain;
+reg [31:0] BusMuxOut;
+wire [31:0] MDR_q;
+wire [31:0] BusMuxIn_MDR;
+
+mdr dut(
+    .clk(clk),
+    .clr(clr),
+    .MDRin(MDRin),
+    .Read(Read),
+    .Mdatain(Mdatain),
+    .BusMuxOut(BusMuxOut),
+    .MDR_q(MDR_q),
+    .BusMuxIn_MDR(BusMuxIn_MDR)
+);
+
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0;
+    clr = 1;
+    MDRin = 0;
+    Read = 0;
+    Mdatain = 0;
+    BusMuxOut = 0;
+
+    #10 clr = 0;
+
+    Mdatain = 32'hDEADBEEF;
+    Read = 1;
+    MDRin = 1;
+    #10 MDRin = 0;
+
+    #20
+    BusMuxOut = 32'h12345678;
+    Read = 0;
+    MDRin = 1;
+    #10 MDRin = 0;
+
+    #50 $stop;
+end
+
+endmodule
