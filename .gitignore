@@ -21,6 +21,25 @@ vsim.wlf
 *.swp
 *.orig
 
+# Other Quartus generated files
+*.rpt
+*.summary
+*.done
+*.smsg
+*.pin
+*.qpf.user
+*.sof
+*.pof
+*.jic
+*.cmp
+*.eqn
+*.map
+*.fit
+*.sta
+*.asm
+*.eda
+*.chg
+
 # OS junk
 .DS_Store
 Thumbs.db
