@@ -35,6 +35,7 @@ module mux_32_1_tb;
 
     // Instantiate DUT
     mux_32_1 DUT (
+		BusMuxOut,
         BusMuxIn_R0, BusMuxIn_R1, BusMuxIn_R2, BusMuxIn_R3,
         BusMuxIn_R4, BusMuxIn_R5, BusMuxIn_R6, BusMuxIn_R7,
         BusMuxIn_R8, BusMuxIn_R9, BusMuxIn_R10, BusMuxIn_R11,
@@ -44,7 +45,6 @@ module mux_32_1_tb;
         BusMuxIn_PC, BusMuxIn_MDR,
         BusMuxIn_InPort,
         C_sign_extended,
-        BusMuxOut,
         select
     );
 	

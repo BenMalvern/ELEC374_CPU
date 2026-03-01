@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module bus_system_tb;
+module bus_tb;
 
     reg [31:0] control;
     reg [31:0] inputs [31:0];
@@ -8,15 +8,15 @@ module bus_system_tb;
 
     integer i;
 
-    bus_system DUT (
+    bus DUT (
+		BusOut,
         control,
         inputs[0], inputs[1], inputs[2], inputs[3],
         inputs[4], inputs[5], inputs[6], inputs[7],
         inputs[8], inputs[9], inputs[10], inputs[11],
         inputs[12], inputs[13], inputs[14], inputs[15],
         inputs[16], inputs[17], inputs[18], inputs[19],
-        inputs[20], inputs[21], inputs[22], inputs[23],
-        BusOut
+        inputs[20], inputs[21], inputs[22], inputs[23]
     );
 
     initial begin

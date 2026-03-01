@@ -1,6 +1,8 @@
 `timescale 1ns/10ps
 
 module mux_32_1 (
+	output reg [31:0] BusMuxOut,
+
 	// Gen purpose registers
 	input [31:0] BusMuxIn_R0,
 	input [31:0] BusMuxIn_R1,
@@ -28,9 +30,7 @@ module mux_32_1 (
 	input [31:0] BusMuxIn_InPort,
 	input [31:0] C_sign_extended,
 	
-	input wire [4:0] select,
-
-	output reg [31:0] BusMuxOut	
+	input wire [4:0] select
 );
 
 	always @(*) begin
