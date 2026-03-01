@@ -6,8 +6,8 @@ module encoder_tb();
     reg  [31:0] Data;
 	
     pe_32_5 dut (
-        .Data(Data),
-        .Code(Code)
+        .Code(Code),
+        .Data(Data)
     );
 
     initial begin
@@ -24,7 +24,7 @@ module encoder_tb();
         #10 Data = 32'h00000100; // expect 8
         #10 Data = 32'h00010000; // expect 16
         #10 Data = 32'h00100000; // expect 20
-        #10 Data = 32'h01000000; // expect 24
+        #10 Data = 32'h01000000; // expect 0
         #10 Data = 32'h80000000; // expect 31
 
         // Priority tests
@@ -32,11 +32,11 @@ module encoder_tb();
         #10 Data = 32'h0000000F; // expect 3
         #10 Data = 32'h00000105; // expect 8
         #10 Data = 32'h00400021; // expect 22
-        #10 Data = 32'hC0000001; // expect 31
+        #10 Data = 32'hC0000001; // expect 1
 
         // Extra tests
         #10 Data = 32'h00000000; // expect X
-        #10 Data = 32'hFFFFFFFF; // expect 31
+        #10 Data = 32'hFFFFFFFF; // expect 23
 
         #10;
         $finish;

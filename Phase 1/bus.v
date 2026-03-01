@@ -1,5 +1,7 @@
-module bus_system (
-    input  [31:0] control,
+module bus (
+	output [31:0] BusOut,
+	
+    input  [23:0] control,
     
 	input [31:0] BusIn0,
 	input [31:0] BusIn1,
@@ -24,9 +26,7 @@ module bus_system (
 	input [31:0] BusIn20,
 	input [31:0] BusIn21,	
 	input [31:0] BusIn22,
-	input [31:0] BusIn23,
-	
-    output [31:0] BusOut
+	input [31:0] BusIn23
 );
 
     wire [4:0] sel;

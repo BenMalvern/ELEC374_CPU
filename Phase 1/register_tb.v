@@ -19,7 +19,7 @@ module register_tb;
 
 
   // Instantiate DUT
-  REGISTER #(
+  register #(
     .DATA_WIDTH(DATA_WIDTH),
     .INIT(32'd0)
   ) DUT (

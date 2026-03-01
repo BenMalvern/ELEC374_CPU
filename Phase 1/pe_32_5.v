@@ -1,19 +1,11 @@
 `timescale 1ns/10ps
 
 module pe_32_5 (
-    input  wire [31:0] Data,
-    output reg  [4:0]  Code
+    output reg  [4:0]  Code,
+    input  wire [24:0] Data
 );
 
 	always @(Data) begin
-		if (Data[31]) Code = 5'd31; else
-		if (Data[30]) Code = 5'd30; else
-		if (Data[29]) Code = 5'd29; else
-		if (Data[28]) Code = 5'd28; else
-		if (Data[27]) Code = 5'd27; else
-		if (Data[26]) Code = 5'd26; else
-		if (Data[25]) Code = 5'd25; else
-		if (Data[24]) Code = 5'd24; else
 		if (Data[23]) Code = 5'd23; else
 		if (Data[22]) Code = 5'd22; else
 		if (Data[21]) Code = 5'd21; else
