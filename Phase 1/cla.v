@@ -1,7 +1,12 @@
-module cla #(parameter DATA_WIDTH = 32)(output [DATA_WIDTH-1:0] Z,input [DATA_WIDTH - 1:0] A, B);
+module cla #(parameter DATA_WIDTH = 32)(output [DATA_WIDTH-1:0] Z,input [DATA_WIDTH - 1:0] A, Bin, sub);
+
+	// Invert B if subtraction
+	
 
 	wire [8:0] connectBlk; // Extra Bit to hold 0 input
 	assign connectBlk[0] = 1'b0;
+	
+	assign B = sub?logicalNeg(Bin):Bin;
 	
 	
 	genvar i;
