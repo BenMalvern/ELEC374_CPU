@@ -7,7 +7,7 @@ module alu_mul(output signed [31:0] LO, HI,
 	reg [2:0] cmp;
 	integer i;
 	
-	always @(A, B) begin
+	always @(*) begin
 		product = 64'b0;
 		B_ext = {B[31], B, 1'b0}; // sign bit + 32-bit B + extra 0
 		A_ext = {{32{A[31]}}, A}; // Explicitly extend A for clarity
