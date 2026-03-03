@@ -1,23 +1,32 @@
-module cla #(parameter DATA_WIDTH = 32)(output [DATA_WIDTH-1:0] Z,input [DATA_WIDTH - 1:0] A, Bin, sub);
+module cla #(parameter DATA_WIDTH = 32)(
+  output [DATA_WIDTH-1:0] Z,
+  input  [DATA_WIDTH-1:0] A,
+  input  [DATA_WIDTH-1:0] Bin,
+  input                  sub
+);
 
 	// Invert B if subtraction
 	
 
 	wire [8:0] connectBlk; // Extra Bit to hold 0 input
-	assign connectBlk[0] = 1'b0;
 	
-    // If sub=1: use B = ~Bin
-    wire [DATA_WIDTH-1:0] B;
-    assign B = sub ? ~Bin + 32'b1 : Bin;	
+	wire [DATA_WIDTH-1:0] B;
+	assign B = sub ? ~Bin : Bin;
+
+	assign connectBlk[0] = sub;
 	
 	genvar i;
 	generate
 		for(i = 0; i < 8; i = i + 1) begin: genloop
-			cla4 block (Z[4*i +: 4], connectBlk[i+1], A[4*i +: 4], B[4*i +: 4], connectBlk[i]);
+			cla4 block (
+			  .sum(Z[4*i +: 4]),
+			  .carry(connectBlk[i+1]),
+			  .A(A[4*i +: 4]),
+			  .B(B[4*i +: 4]),
+			  .carryBlockIn(connectBlk[i])
+			);
 		end
-	endgenerate
-
-		
+	endgenerate	
 endmodule
 
 

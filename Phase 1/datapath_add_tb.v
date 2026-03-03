@@ -197,7 +197,7 @@ module datapath_add_tb;
 				#20 PCout <= 0; MARin <= 0; IncPC <= 0; Zin <= 0;
 			end
 			T1: begin
-				Mdatain = 32'h12B0000;  // ADD R2,R5,R6 opcode
+				Mdatain = 32'h012B0000;  // ADD R2,R5,R6 opcode
 				Zlowout <= 1; PCin <= 1; Read <= 1; MDRin <= 1;
 				#20 Zlowout <= 0; PCin <= 0; Read <= 0; MDRin <= 0;
 			end

@@ -189,7 +189,7 @@ module datapath_tb;
     // Preload a couple registers
     load_reg_from_const(5, 32'h0000_000F); // R5 = 15
     load_reg_from_const(6, 32'h0000_00F0); // R6 = 240
-    load_reg_from_const(2, 32'hDEAD_BEEF); // R2 initial value, will be overwritten later if you implement ALU/Z path
+    load_reg_from_const(2, 32'hDDDDDDDD); // R2 initial value, will be overwritten later if you implement ALU/Z path
 
     // Load a fake instruction into IR (you can put any pattern for now)
     fetch_ir_from_const(32'h1234_5678);

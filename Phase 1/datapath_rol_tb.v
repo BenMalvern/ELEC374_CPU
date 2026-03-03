@@ -211,11 +211,9 @@ module datapath_rol_tb;
 				#20 Rout[0] <= 0; Yin <= 0;
 			end
 			T4: begin
-				i = R4_Q;
-				for (; i > 0; i = i - 1) begin
+				
 					ROL_op <= 1; Zin <= 1;
 					#20 ROL_op <= 0; Zin <= 0;
-				end
 			end
 			T5: begin
 				Zlowout <= 1; Rin[7] <= 1;
