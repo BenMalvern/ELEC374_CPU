@@ -175,7 +175,7 @@ module datapath_rol_tb;
 				Mdatain <= 32'h00000000;
 			end
 			LoadR0a: begin
-				Mdatain <= 32'h000000EF;
+				Mdatain <= 32'hF00000EF;
 				Read <= 1; MDRin <= 1;
 				#20 Read <= 0; MDRin <= 0; // Put 0xEF in MDR
 			end

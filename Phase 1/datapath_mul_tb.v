@@ -185,7 +185,7 @@ module datapath_mul_tb;
 				#20 MDRout <= 0; Rin[1] <= 0; // Initialize R1 with 0xFEA8
 			end
 			LoadR3a: begin
-				Mdatain <= 32'h00008973;
+				Mdatain <= 32'hFFFF8973;
 				Read <= 1; MDRin <= 1;
 				#20 Read <= 0; MDRin <= 0; // Put 0x8973 in MDR
 			end
