@@ -12,6 +12,8 @@ module datapath #(parameter DATA_WIDTH = 32)
     // Write enables
     input  wire                   PCin,
     input  wire                   IRin,
+    input  wire                   MARin,
+    input  wire                   Yin,
     input  wire                   HIin,
     input  wire                   LOin,
     input  wire                   Zin,        // enables both Z registers
@@ -19,6 +21,24 @@ module datapath #(parameter DATA_WIDTH = 32)
     input  wire                   InPortin,
     input  wire                   Cin,
     input  wire [15:0]            Rin,        // R0in..R15in
+
+    // Special control
+    input  wire                   IncPC,
+
+    // ALU control signals (one-hot style)
+    input  wire                   ADD,
+    input  wire                   SUB,
+    input  wire                   AND_op,
+    input  wire                   OR_op,
+    input  wire                   SHR_op,
+    input  wire                   SHRA_op,
+    input  wire                   SHL_op,
+    input  wire                   ROR_op,
+    input  wire                   ROL_op,
+    input  wire                   NEG_op,
+    input  wire                   NOT_op,
+    input  wire                   MUL_op,
+    input  wire                   DIV_op,
 
     // Bus drivers (one-hot)
     input  wire                   PCout,
@@ -37,6 +57,8 @@ module datapath #(parameter DATA_WIDTH = 32)
     // Expose register values
     output wire [DATA_WIDTH-1:0]  PC_Q,
     output wire [DATA_WIDTH-1:0]  IR_Q,
+    output wire [DATA_WIDTH-1:0]  MAR_Q,
+    output wire [DATA_WIDTH-1:0]  Y_Q,
     output wire [DATA_WIDTH-1:0]  HI_Q,
     output wire [DATA_WIDTH-1:0]  LO_Q,
     output wire [DATA_WIDTH-1:0]  Z_HI_Q,
@@ -62,8 +84,8 @@ module datapath #(parameter DATA_WIDTH = 32)
     output wire [DATA_WIDTH-1:0]  R15_Q
 );
 
-    // Bus control vector
-    wire [23:0] bus_control;
+    // Bus control vector (pad to 25 bits because pe_32_5 expects [24:0])
+    wire [24:0] bus_control;
     assign bus_control[15:0] = Rout;
     assign bus_control[16]   = HIout;
     assign bus_control[17]   = LOout;
@@ -73,8 +95,9 @@ module datapath #(parameter DATA_WIDTH = 32)
     assign bus_control[21]   = MDRout;
     assign bus_control[22]   = InPortout;
     assign bus_control[23]   = Cout;
+    assign bus_control[24]   = 1'b0;
 
-    // Standard registers (D is BusMuxOut (input to register), Q feeds bus inputs (output from register))
+    // Standard registers (load from BusMuxOut unless otherwise stated)
     register PC_REG (
         .BUS_MUX_IN (PC_Q),
         .BUS_MUX_OUT(BusMuxOut),
@@ -91,6 +114,23 @@ module datapath #(parameter DATA_WIDTH = 32)
         .enable     (IRin)
     );
 
+    register MAR_REG (
+        .BUS_MUX_IN (MAR_Q),
+        .BUS_MUX_OUT(BusMuxOut),
+        .clear      (clear),
+        .clock      (clock),
+        .enable     (MARin)
+    );
+
+    // Y register feeds ALU A input
+    register Y_REG (
+        .BUS_MUX_IN (Y_Q),
+        .BUS_MUX_OUT(BusMuxOut),
+        .clear      (clear),
+        .clock      (clock),
+        .enable     (Yin)
+    );
+
     register HI_REG (
         .BUS_MUX_IN (HI_Q),
         .BUS_MUX_OUT(BusMuxOut),
@@ -105,22 +145,6 @@ module datapath #(parameter DATA_WIDTH = 32)
         .clear      (clear),
         .clock      (clock),
         .enable     (LOin)
-    );
-
-    register Z_LO_REG (
-        .BUS_MUX_IN (Z_LO_Q),
-        .BUS_MUX_OUT(BusMuxOut),
-        .clear      (clear),
-        .clock      (clock),
-        .enable     (Zin)
-    );
-
-    register Z_HI_REG (
-        .BUS_MUX_IN (Z_HI_Q),
-        .BUS_MUX_OUT(BusMuxOut),
-        .clear      (clear),
-        .clock      (clock),
-        .enable     (Zin)
     );
 
     register INPORT_REG (
@@ -170,6 +194,57 @@ module datapath #(parameter DATA_WIDTH = 32)
     register R13_REG (.BUS_MUX_IN(R13_Q), .BUS_MUX_OUT(BusMuxOut), .clear(clear), .clock(clock), .enable(Rin[13]));
     register R14_REG (.BUS_MUX_IN(R14_Q), .BUS_MUX_OUT(BusMuxOut), .clear(clear), .clock(clock), .enable(Rin[14]));
     register R15_REG (.BUS_MUX_IN(R15_Q), .BUS_MUX_OUT(BusMuxOut), .clear(clear), .clock(clock), .enable(Rin[15]));
+
+    // ALU instance
+    wire [63:0] alu_result;
+
+    alu U_ALU (
+        .A      (Y_Q),
+        .B      (BusMuxOut),
+        .ADD    (ADD),
+        .SUB    (SUB),
+        .AND_op (AND_op),
+        .OR_op  (OR_op),
+        .SHR_op (SHR_op),
+        .SHRA_op(SHRA_op),
+        .SHL_op (SHL_op),
+        .ROR_op (ROR_op),
+        .ROL_op (ROL_op),
+        .NEG_op (NEG_op),
+        .NOT_op (NOT_op),
+        .MUL_op (MUL_op),
+        .DIV_op (DIV_op),
+        .result (alu_result)
+    );
+
+    // Increment PC logic for fetch T0 (PC + 1)
+    wire [DATA_WIDTH-1:0] pc_plus_1;
+    cla #(DATA_WIDTH) U_PC_INC (
+        .Z  (pc_plus_1),
+        .A  (PC_Q),
+        .Bin({{(DATA_WIDTH-1){1'b0}}, 1'b1}),
+        .sub(1'b0)
+    );
+
+    // What gets written into Z when Zin is asserted
+    wire [63:0] Z_in64 = (IncPC) ? {32'b0, pc_plus_1} : alu_result;
+
+    // Z registers load from internal Z_in64, not from BusMuxOut
+    register Z_LO_REG (
+        .BUS_MUX_IN (Z_LO_Q),
+        .BUS_MUX_OUT(Z_in64[31:0]),
+        .clear      (clear),
+        .clock      (clock),
+        .enable     (Zin)
+    );
+
+    register Z_HI_REG (
+        .BUS_MUX_IN (Z_HI_Q),
+        .BUS_MUX_OUT(Z_in64[63:32]),
+        .clear      (clear),
+        .clock      (clock),
+        .enable     (Zin)
+    );
 
     // Bus mux selects which Q drives BusMuxOut
     bus BusMux (

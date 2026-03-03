@@ -8,7 +8,7 @@ module cla #(parameter DATA_WIDTH = 32)(output [DATA_WIDTH-1:0] Z,input [DATA_WI
 	
     // If sub=1: use B = ~Bin
     wire [DATA_WIDTH-1:0] B;
-    assign B = sub ? ~Bin : Bin;	
+    assign B = sub ? ~Bin + 32'b1 : Bin;	
 	
 	genvar i;
 	generate
