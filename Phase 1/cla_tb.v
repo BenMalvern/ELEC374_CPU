@@ -7,7 +7,7 @@ module cla_tb;
   reg  [DATA_WIDTH-1:0] A;
   reg  [DATA_WIDTH-1:0] B;
   wire [DATA_WIDTH-1:0] Z;
-  wire sub;
+  reg sub;
   
 
   // Instantiate DUT
@@ -16,7 +16,7 @@ module cla_tb;
   initial begin
     $monitor("t=%0t  A=%d  B=%d  Z=%d", $time, A, B, Z);
 	 
-	 assign sub = 1'b0;
+	 sub = 1'b0;
 
     A = 0;  B = 0;
     #10;

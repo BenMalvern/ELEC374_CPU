@@ -3,7 +3,7 @@ module SHR #(parameter DATA_WIDTH = 32) (output [DATA_WIDTH - 1:0] Z, input [DAT
 endmodule
 
 module SHRA #(parameter DATA_WIDTH = 32) (output [DATA_WIDTH - 1:0] Z, input [DATA_WIDTH - 1:0] A, input [4:0] shiftAmount);
-	assign Z $signed(A) >>> shiftAmount[4:0];
+	assign Z = $signed(A) >>> shiftAmount[4:0];
 endmodule
 
 module SHL #(parameter DATA_WIDTH = 32) (output [DATA_WIDTH - 1:0] Z, input [DATA_WIDTH - 1:0] A, input [4:0] shiftAmount);
