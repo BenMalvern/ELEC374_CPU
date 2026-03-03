@@ -175,13 +175,13 @@ module datapath_shra_tb;
 				Mdatain <= 32'h00000000;
 			end
 			LoadR0a: begin
-				Mdatain <= 32'h000000EF;
+				Mdatain <= 32'hF00000EF;
 				Read <= 1; MDRin <= 1;
-				#20 Read <= 0; MDRin <= 0; // Put 0xEF in MDR
+				#20 Read <= 0; MDRin <= 0; // Put 0xF00000EF in MDR
 			end
 			LoadR0b: begin
 				MDRout <= 1; Rin[0] <= 1;
-				#20 MDRout <= 0; Rin[0] <= 0; // Initialize R0 with 0xEF
+				#20 MDRout <= 0; Rin[0] <= 0; // Initialize R0 with 0xF00000EF
 			end
 			LoadR4a: begin
 				Mdatain <= 32'h00000001;
@@ -211,8 +211,8 @@ module datapath_shra_tb;
 				#20 Rout[0] <= 0; Yin <= 0;
 			end
 			T4: begin
-				SHRA_op <= 1; Zin <= 1;
-				#20 SHRA_op <= 0; Zin <= 0;
+				Rout[4] <= 1; SHRA_op <= 1; Zin <= 1;
+				#20 Rout[4] <= 0; SHRA_op <= 0; Zin <= 0;
 			end
 			T5: begin
 				Zlowout <= 1; Rin[7] <= 1;

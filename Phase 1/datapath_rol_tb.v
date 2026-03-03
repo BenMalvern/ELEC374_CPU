@@ -211,8 +211,8 @@ module datapath_rol_tb;
 				#20 Rout[0] <= 0; Yin <= 0;
 			end
 			T4: begin
-				ROL_op <= 1; Zin <= 1;
-				#20 ROL_op <= 0; Zin <= 0;
+				Rout[4] <= 1; ROL_op <= 1; Zin <= 1;
+				#20 Rout[4] <= 0; ROL_op <= 0; Zin <= 0;
 			end
 			T5: begin
 				Zlowout <= 1; Rin[7] <= 1;
