@@ -175,8 +175,8 @@ module datapath_not_tb;
 				#20 Read <= 0; MDRin <= 0; // Put 0xEF in MDR
 			end
 			LoadR7b: begin
-				MDRout <= 1; Rin[5] <= 1;
-				#20 MDRout <= 0; Rin[5] <= 0; // Initialize R7 with 0xEF
+				MDRout <= 1; Rin[7] <= 1;
+				#20 MDRout <= 0; Rin[7] <= 0; // Initialize R7 with 0xEF
 			end
 
 			T0: begin

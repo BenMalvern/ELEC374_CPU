@@ -180,8 +180,8 @@ module datapath_rol_tb;
 				#20 Read <= 0; MDRin <= 0; // Put 0xEF in MDR
 			end
 			LoadR0b: begin
-				MDRout <= 1; Rin[5] <= 1;
-				#20 MDRout <= 0; Rin[5] <= 0; // Initialize R0 with 0xEF
+				MDRout <= 1; Rin[0] <= 1;
+				#20 MDRout <= 0; Rin[0] <= 0; // Initialize R0 with 0xEF
 			end
 			LoadR4a: begin
 				Mdatain <= 32'h00000001;
@@ -189,8 +189,8 @@ module datapath_rol_tb;
 				#20 Read <= 0; MDRin <= 0; // Put 0x1 in MDR
 			end
 			LoadR4b: begin
-				MDRout <= 1; Rin[6] <= 1;
-				#20 MDRout <= 0; Rin[6] <= 0; // Initialize R4 with 0x1
+				MDRout <= 1; Rin[4] <= 1;
+				#20 MDRout <= 0; Rin[4] <= 0; // Initialize R4 with 0x1
 			end
 
 			T0: begin
@@ -211,9 +211,8 @@ module datapath_rol_tb;
 				#20 Rout[0] <= 0; Yin <= 0;
 			end
 			T4: begin
-				
-					ROL_op <= 1; Zin <= 1;
-					#20 ROL_op <= 0; Zin <= 0;
+				ROL_op <= 1; Zin <= 1;
+				#20 ROL_op <= 0; Zin <= 0;
 			end
 			T5: begin
 				Zlowout <= 1; Rin[7] <= 1;

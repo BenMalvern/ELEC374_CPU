@@ -211,10 +211,10 @@ module datapath_shr_tb;
 				#20 Rout[0] <= 0; Yin <= 0;
 			end
 			T4: begin
-			  Rout[4] <= 1;     // put R4 on bus
-			  SHR_op <= 1;
-			  Zin <= 1;
-			  #20 Rout[4] <= 0; SHR_op <= 0; Zin <= 0;
+				Rout[4] <= 1;     // put R4 on bus
+				SHR_op <= 1;
+				Zin <= 1;
+				#20 Rout[4] <= 0; SHR_op <= 0; Zin <= 0;
 			end
 			T5: begin
 				Zlowout <= 1; Rin[7] <= 1;
