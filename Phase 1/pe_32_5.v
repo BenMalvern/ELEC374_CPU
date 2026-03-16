@@ -2,7 +2,7 @@
 
 module pe_32_5 (
     output reg  [4:0]  Code,
-    input  wire [24:0] Data
+    input  wire [23:0] Data
 );
 
 	always @(Data) begin
