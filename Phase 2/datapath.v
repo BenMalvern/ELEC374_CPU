@@ -5,10 +5,9 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire clock,
     input wire clear,
 
-    // Phase 1 mock memory inputs for MDR
     input wire Read,
-    input wire [DATA_WIDTH-1:0] Mdatain,
-
+    input wire Write,
+	
     // Write enables
     input wire PCin,
     input wire IRin,
@@ -16,11 +15,11 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire Yin,
     input wire HIin,
     input wire LOin,
-    input wire Zin,        // enables both Z registers
+    input wire Zin, // enables both Z registers
     input wire MDRin,
     input wire InPortin,
     input wire Cin,
-    input wire [15:0] Rin,        // R0in..R15in
+    input wire [15:0] Rin, // R0in..R15in
 
     // Special control
     input wire IncPC,
@@ -78,13 +77,13 @@ module datapath #(parameter DATA_WIDTH = 32)
     // Expose register values
     output wire [DATA_WIDTH-1:0] PC_Q,
     output wire [DATA_WIDTH-1:0] IR_Q,
-    output wire [DATA_WIDTH-1:0] MAR_Q,
     output wire [DATA_WIDTH-1:0] Y_Q,
     output wire [DATA_WIDTH-1:0] HI_Q,
     output wire [DATA_WIDTH-1:0] LO_Q,
     output wire [DATA_WIDTH-1:0] Z_HI_Q,
     output wire [DATA_WIDTH-1:0] Z_LO_Q,
     output wire [DATA_WIDTH-1:0] MDR_Q,
+	output wire [DATA_WIDTH-1:0] MAR_Q,
     output wire [DATA_WIDTH-1:0] InPort_Q,
     output wire [DATA_WIDTH-1:0] C_Q,
     output wire [DATA_WIDTH-1:0] R0_Q,
@@ -160,14 +159,6 @@ module datapath #(parameter DATA_WIDTH = 32)
         .enable(IRin)
     );
 
-    register MAR_REG (
-        .BUS_MUX_IN(MAR_Q),
-        .BUS_MUX_OUT(BusMuxOut_C),
-        .clear(clear),
-        .clock(clock),
-        .enable(MARin)
-    );
-
     // Y register feeds ALU A input
     register Y_REG (
         .BUS_MUX_IN(Y_Q),
@@ -209,8 +200,11 @@ module datapath #(parameter DATA_WIDTH = 32)
         .enable(Cin)
     );
 
-    // MDR wiring (uses Read/Mdatain/BusMuxOut)
-    wire [DATA_WIDTH-1:0] BusMuxIn_MDR;
+	// Internal memory subsystem wires
+    wire [DATA_WIDTH-1:0] BusMuxIn_MDR;	
+	wire [DATA_WIDTH-1:0] Mdatain;
+	wire [8:0] mem_address;
+	assign mem_address = MAR_Q[8:0];
 
     mdr MDR_REG (
         .clk(clock),
@@ -222,7 +216,24 @@ module datapath #(parameter DATA_WIDTH = 32)
         .MDR_q(MDR_Q),
         .BusMuxIn_MDR(BusMuxIn_MDR)
     );
-
+	
+	mar MAR_REG (
+        .clk(clock),
+		.clr(clear),
+		.MARin(MARin),
+		.BusMuxOut(BusMuxOut_C),
+		.MAR_q(MAR_Q)
+    );
+	
+	ram RAM (
+		.clk(clock),
+		.Read(Read),
+		.Write(Write),
+		.address(mem_address),
+		.data_in(MDR_Q),
+		.data_out(Mdatain)
+	);
+	
     // General purpose registers R0 to R15
     register R0_REG(.BUS_MUX_IN(R0_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[0]));
     register R1_REG(.BUS_MUX_IN(R1_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[1]));

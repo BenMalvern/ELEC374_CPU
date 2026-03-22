@@ -13,6 +13,7 @@ always @(posedge clk or posedge clr) begin
     if (clr)
         MDR_q <= 32'b0;
     else if (MDRin) begin
+		// MDMux
         if (Read)
             MDR_q <= Mdatain;
         else
