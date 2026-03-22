@@ -19,7 +19,8 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire MDRin,
     input wire InPortin,
     input wire Cin,
-    input wire [15:0] Rin, // R0in..R15in
+    input wire Gra, Grb, Grc, // Select and encode logic
+	input wire Rin, Rout, BAout, 
 
     // Special control
     input wire IncPC,
@@ -53,7 +54,6 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire MDRoutA,
     input wire InPortoutA,
     input wire CoutA,
-    input wire [15:0] RoutA, // R0out..R15out
 	
 	// B bus drivers
     input wire PCoutB,
@@ -64,7 +64,6 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire MDRoutB,
     input wire InPortoutB,
     input wire CoutB,
-    input wire [15:0] RoutB,       // R0out..R15out
 	
 	// C bus writeback source select
     input wire ZlowoutC,
@@ -85,7 +84,6 @@ module datapath #(parameter DATA_WIDTH = 32)
     output wire [DATA_WIDTH-1:0] MDR_Q,
 	output wire [DATA_WIDTH-1:0] MAR_Q,
     output wire [DATA_WIDTH-1:0] InPort_Q,
-    output wire [DATA_WIDTH-1:0] C_Q,
     output wire [DATA_WIDTH-1:0] R0_Q,
     output wire [DATA_WIDTH-1:0] R1_Q,
     output wire [DATA_WIDTH-1:0] R2_Q,
@@ -106,7 +104,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 
     // Bus A control vector
     wire [23:0] bus_control_A;
-    assign bus_control_A[15:0] = RoutA;
+    assign bus_control_A[15:0] = RoutA_sel;
     assign bus_control_A[16] = HIoutA;
     assign bus_control_A[17] = LOoutA;
     assign bus_control_A[18] = ZhighoutA;
@@ -118,7 +116,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 	
 	// Bus B control vector
     wire [23:0] bus_control_B;
-    assign bus_control_B[15:0] = RoutB;
+    assign bus_control_B[15:0] = RoutB_sel;
     assign bus_control_B[16] = HIoutB;
     assign bus_control_B[17] = LOoutB;
     assign bus_control_B[18] = ZhighoutB;
@@ -138,7 +136,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 		else if (MDRoutC) C_bus_reg = MDR_Q;
 		else if (PCoutC) C_bus_reg = PC_Q;
 		else if (InPortoutC) C_bus_reg = InPort_Q;
-		else if (CoutC) C_bus_reg = C_Q;
+		else if (CoutC) C_bus_reg = C_sign_extended;
 		else C_bus_reg = {DATA_WIDTH{1'b0}};
 	end
 	
@@ -192,14 +190,6 @@ module datapath #(parameter DATA_WIDTH = 32)
         .enable(InPortin)
     );
 
-    register C_REG (
-        .BUS_MUX_IN(C_Q),
-        .BUS_MUX_OUT(BusMuxOut_C),
-        .clear(clear),
-        .clock(clock),
-        .enable(Cin)
-    );
-
 	// Internal memory subsystem wires
     wire [DATA_WIDTH-1:0] BusMuxIn_MDR;	
 	wire [DATA_WIDTH-1:0] Mdatain;
@@ -235,23 +225,49 @@ module datapath #(parameter DATA_WIDTH = 32)
 	);
 	
     // General purpose registers R0 to R15
-    register R0_REG(.BUS_MUX_IN(R0_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[0]));
-    register R1_REG(.BUS_MUX_IN(R1_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[1]));
-    register R2_REG(.BUS_MUX_IN(R2_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[2]));
-    register R3_REG(.BUS_MUX_IN(R3_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[3]));
-    register R4_REG(.BUS_MUX_IN(R4_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[4]));
-    register R5_REG(.BUS_MUX_IN(R5_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[5]));
-    register R6_REG(.BUS_MUX_IN(R6_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[6]));
-    register R7_REG(.BUS_MUX_IN(R7_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[7]));
-    register R8_REG(.BUS_MUX_IN(R8_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[8]));
-    register R9_REG(.BUS_MUX_IN(R9_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[9]));
-    register R10_REG(.BUS_MUX_IN(R10_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[10]));
-    register R11_REG(.BUS_MUX_IN(R11_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[11]));
-    register R12_REG(.BUS_MUX_IN(R12_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[12]));
-    register R13_REG(.BUS_MUX_IN(R13_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[13]));
-    register R14_REG(.BUS_MUX_IN(R14_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[14]));
-    register R15_REG(.BUS_MUX_IN(R15_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin[15]));
-
+    register R0_REG(.BUS_MUX_IN(R0_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[0]));
+    register R1_REG(.BUS_MUX_IN(R1_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[1]));
+    register R2_REG(.BUS_MUX_IN(R2_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[2]));
+    register R3_REG(.BUS_MUX_IN(R3_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[3]));
+    register R4_REG(.BUS_MUX_IN(R4_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[4]));
+    register R5_REG(.BUS_MUX_IN(R5_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[5]));
+    register R6_REG(.BUS_MUX_IN(R6_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[6]));
+    register R7_REG(.BUS_MUX_IN(R7_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[7]));
+    register R8_REG(.BUS_MUX_IN(R8_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[8]));
+    register R9_REG(.BUS_MUX_IN(R9_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[9]));
+    register R10_REG(.BUS_MUX_IN(R10_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[10]));
+    register R11_REG(.BUS_MUX_IN(R11_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[11]));
+    register R12_REG(.BUS_MUX_IN(R12_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[12]));
+    register R13_REG(.BUS_MUX_IN(R13_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[13]));
+    register R14_REG(.BUS_MUX_IN(R14_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[14]));
+    register R15_REG(.BUS_MUX_IN(R15_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[15]));
+	
+	// Select and encode logic 
+	wire [15:0] Rin_sel;
+	wire [15:0] RoutA_sel;
+	wire [15:0] RoutB_sel;
+	wire [31:0] C_sign_extended;
+	
+	select_encode SELECT_ENCODE (
+		.IR(IR_Q),
+		.Gra(Gra),
+		.Grb(Grb),
+		.Grc(Grc),
+		.Rin(Rin),
+		.Rout(Rout),
+		.BAout(BAout),
+		.Rin_sel(Rin_sel),
+		.RoutA_sel(RoutA_sel),
+		.RoutB_sel(RoutB_sel),
+		.C_sign_extended(C_sign_extended)
+	);
+	
+	// BAout gates 0's on bus if R0 is selected
+	wire [DATA_WIDTH-1:0] R0out_A;
+	wire [DATA_WIDTH-1:0] R0out_B;
+	assign R0out_A = (BAout && RoutA_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
+	assign R0out_B = (BAout && RoutB_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
+		
     // ALU instance
     wire [63:0] alu_result;
 
@@ -307,8 +323,7 @@ module datapath #(parameter DATA_WIDTH = 32)
     bus BusMuxA (
         .BusOut(BusMuxOut_A),
         .control(bus_control_A),
-
-        .BusIn0(R0_Q),
+        .BusIn0(R0out_A),
         .BusIn1(R1_Q),
         .BusIn2(R2_Q),
         .BusIn3(R3_Q),
@@ -331,14 +346,13 @@ module datapath #(parameter DATA_WIDTH = 32)
         .BusIn20(PC_Q),
         .BusIn21(BusMuxIn_MDR),
         .BusIn22(InPort_Q),
-        .BusIn23(C_Q)
+        .BusIn23(C_sign_extended)
     );
 	
 	bus BusMuxB (
         .BusOut(BusMuxOut_B),
         .control(bus_control_B),
-
-        .BusIn0(R0_Q),
+        .BusIn0(R0out_B),
         .BusIn1(R1_Q),
         .BusIn2(R2_Q),
         .BusIn3(R3_Q),
@@ -361,7 +375,7 @@ module datapath #(parameter DATA_WIDTH = 32)
         .BusIn20(PC_Q),
         .BusIn21(BusMuxIn_MDR),
         .BusIn22(InPort_Q),
-        .BusIn23(C_Q)
+        .BusIn23(C_sign_extended)
     );
 
 endmodule
