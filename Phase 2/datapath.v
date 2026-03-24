@@ -12,15 +12,14 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire PCin,
     input wire IRin,
     input wire MARin,
-    input wire Yin,
     input wire HIin,
     input wire LOin,
     input wire Zin, // enables both Z registers
     input wire MDRin,
-    input wire InPortin,
     input wire Cin,
     input wire Gra, Grb, Grc, // Select and encode logic
 	input wire Rin, Rout, BAout, 
+	input wire CONin,
 
     // Special control
     input wire IncPC,
@@ -73,10 +72,15 @@ module datapath #(parameter DATA_WIDTH = 32)
 	input wire InPortoutC,
 	input wire CoutC,
 	
+    // Port specific wires
+    input wire [31:0] external_input,
+    input wire InPort_strobe,
+    input wire OutPortin,
+    output wire [31:0] OutPort_Q,
+
     // Expose register values
     output wire [DATA_WIDTH-1:0] PC_Q,
     output wire [DATA_WIDTH-1:0] IR_Q,
-    output wire [DATA_WIDTH-1:0] Y_Q,
     output wire [DATA_WIDTH-1:0] HI_Q,
     output wire [DATA_WIDTH-1:0] LO_Q,
     output wire [DATA_WIDTH-1:0] Z_HI_Q,
@@ -99,9 +103,36 @@ module datapath #(parameter DATA_WIDTH = 32)
     output wire [DATA_WIDTH-1:0] R12_Q,
     output wire [DATA_WIDTH-1:0] R13_Q,
     output wire [DATA_WIDTH-1:0] R14_Q,
-    output wire [DATA_WIDTH-1:0] R15_Q
+    output wire [DATA_WIDTH-1:0] R15_Q,
+	output wire CON_FF_Q
 );
-
+	
+	// Select and encode logic 
+	wire [15:0] Rin_sel;
+	wire [15:0] RoutA_sel;
+	wire [15:0] RoutB_sel;
+	wire [31:0] C_sign_extended;
+	
+	select_encode SELECT_ENCODE (
+		.IR(IR_Q),
+		.Gra(Gra),
+		.Grb(Grb),
+		.Grc(Grc),
+		.Rin(Rin),
+		.Rout(Rout),
+		.BAout(BAout),
+		.Rin_sel(Rin_sel),
+		.RoutA_sel(RoutA_sel),
+		.RoutB_sel(RoutB_sel),
+		.C_sign_extended(C_sign_extended)
+	);
+	
+	// BAout gates 0's on bus if R0 is selected
+	wire [DATA_WIDTH-1:0] R0out_A;
+	wire [DATA_WIDTH-1:0] R0out_B;
+	assign R0out_A = (BAout && RoutA_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
+	assign R0out_B = (BAout && RoutB_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
+	
     // Bus A control vector
     wire [23:0] bus_control_A;
     assign bus_control_A[15:0] = RoutA_sel;
@@ -140,15 +171,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 		else C_bus_reg = {DATA_WIDTH{1'b0}};
 	end
 	
-    // Standard registers (load from BusMuxOut unless otherwise stated)
-    register PC_REG (
-        .BUS_MUX_IN(PC_Q),
-        .BUS_MUX_OUT(BusMuxOut_C),
-        .clear(clear),
-        .clock(clock),
-        .enable(PCin)
-    );
-
+    // Standard registers (load from BusMuxOut_C unless otherwise stated)
     register IR_REG (
         .BUS_MUX_IN(IR_Q),
         .BUS_MUX_OUT(BusMuxOut_C),
@@ -156,14 +179,16 @@ module datapath #(parameter DATA_WIDTH = 32)
         .clock(clock),
         .enable(IRin)
     );
-
-    // Y register feeds ALU A input
-    register Y_REG (
-        .BUS_MUX_IN(Y_Q),
+	
+	// Only branch if CON_FF_Q is true
+	wire PCin_effective;
+	assign PCin_effective = (CONin) ? (PCin & CON_FF_Q) : PCin;
+	register PC_REG (
+        .BUS_MUX_IN(PC_Q),
         .BUS_MUX_OUT(BusMuxOut_C),
         .clear(clear),
         .clock(clock),
-        .enable(Yin)
+        .enable(PCin_effective)
     );
 
     register HI_REG (
@@ -182,12 +207,20 @@ module datapath #(parameter DATA_WIDTH = 32)
         .enable(LOin)
     );
 
-    register INPORT_REG (
-        .BUS_MUX_IN(InPort_Q),
-        .BUS_MUX_OUT(BusMuxOut_C),
+    in_port INPORT_REG (
+        .clk(clock),
         .clear(clear),
-        .clock(clock),
-        .enable(InPortin)
+        .strobe(InPort_strobe),
+        .external_input(external_input),
+        .InPort_Q(InPort_Q)
+    );
+
+    out_port OUTPORT_REG (
+        .clk(clock),
+        .clear(clear),
+        .OutPortin(OutPortin),
+        .BusMuxOut(BusMuxOut_C),
+        .OutPort_Q(OutPort_Q)
     );
 
 	// Internal memory subsystem wires
@@ -241,32 +274,6 @@ module datapath #(parameter DATA_WIDTH = 32)
     register R13_REG(.BUS_MUX_IN(R13_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[13]));
     register R14_REG(.BUS_MUX_IN(R14_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[14]));
     register R15_REG(.BUS_MUX_IN(R15_Q), .BUS_MUX_OUT(BusMuxOut_C), .clear(clear), .clock(clock), .enable(Rin_sel[15]));
-	
-	// Select and encode logic 
-	wire [15:0] Rin_sel;
-	wire [15:0] RoutA_sel;
-	wire [15:0] RoutB_sel;
-	wire [31:0] C_sign_extended;
-	
-	select_encode SELECT_ENCODE (
-		.IR(IR_Q),
-		.Gra(Gra),
-		.Grb(Grb),
-		.Grc(Grc),
-		.Rin(Rin),
-		.Rout(Rout),
-		.BAout(BAout),
-		.Rin_sel(Rin_sel),
-		.RoutA_sel(RoutA_sel),
-		.RoutB_sel(RoutB_sel),
-		.C_sign_extended(C_sign_extended)
-	);
-	
-	// BAout gates 0's on bus if R0 is selected
-	wire [DATA_WIDTH-1:0] R0out_A;
-	wire [DATA_WIDTH-1:0] R0out_B;
-	assign R0out_A = (BAout && RoutA_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
-	assign R0out_B = (BAout && RoutB_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
 		
     // ALU instance
     wire [63:0] alu_result;
@@ -377,5 +384,14 @@ module datapath #(parameter DATA_WIDTH = 32)
         .BusIn22(InPort_Q),
         .BusIn23(C_sign_extended)
     );
-
+	
+	con_ff_logic CON_FF_LOGIC (
+        .clk(clock),
+        .clear(clear),
+        .CONin(CONin),
+        .IR_c2(IR_Q[22:19]),
+        .bus_data(BusMuxOut_A),
+        .CON_FF(CON_FF_Q)
+    );
+	
 endmodule

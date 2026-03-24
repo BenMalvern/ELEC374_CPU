@@ -67,3 +67,9 @@ Key implications of this change:
 - Overall instruction execution becomes **faster and more parallel**, as multiple data transfers can occur in a single cycle.
 
 The transition from a **single-bus architecture to a three-bus architecture** represents a common evolution in CPU datapath design, trading slightly increased hardware complexity for significantly improved instruction throughput.
+
+
+use the verilog built in functionality for simulating ram memory
+	ram is designed for byte addressing that is little endian
+remove the need for Y register because of 2 buses
+for the select encoder, the a bus drives Gra and b bus drives Grb

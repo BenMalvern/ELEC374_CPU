@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module datapath_ld_tb;
+module datapath_addi_tb;
 
     parameter DATA_WIDTH = 32;
 
@@ -150,44 +150,35 @@ module datapath_ld_tb;
               T1 = 4'd2,
               T2 = 4'd3,
               T3 = 4'd4,
-              T4 = 4'd5,
-              T5 = 4'd6,
-              T6 = 4'd7;
+              T4 = 4'd5;
 
     reg [3:0] Present_state;
+    reg [31:0] andi_instr;
 
     initial begin
         clock = 0;
         forever #10 clock = ~clock;
     end
 
-    reg [31:0] ld_instr;
     initial begin
         clear = 1'b1;
         #15 clear = 1'b0;
 
-        // ld R0, 0x72(R2)
-		ld_instr[31:27] = 5'b10000; // Load indexed
-        ld_instr[26:23] = 4'd0;   // Ra = R0
-        ld_instr[22:19] = 4'd2;   // Rb = R2
-        ld_instr[18:0]  = 19'h72;  // C = 0x72
+        // andi R7, R4, 0x71
+        // The opcode bits are documentary here; the control sequence is applied manually.
+        andi_instr[31:27] = 5'b01001;
+        andi_instr[26:23] = 4'd7;    // Ra = R7
+        andi_instr[22:19] = 4'd4;    // Rb = R4
+        andi_instr[18:0]  = 19'h71;  // C = 0x71
 
-        // preload R2 = 0x57
-        force DUT.R2_REG.BUS_MUX_IN = 32'h00000057;
+        // Initialize R4 = 0x00000075 so the expected result is 0x00000071.
+        force DUT.R4_REG.BUS_MUX_IN = 32'h00000075;
 
-        // preload PC = 0
-
-        // instruction memory
-        force DUT.RAM.memory[0] = ld_instr[7:0];
-        force DUT.RAM.memory[1] = ld_instr[15:8];
-        force DUT.RAM.memory[2] = ld_instr[23:16];
-        force DUT.RAM.memory[3] = ld_instr[31:24];
-
-        // data memory at address 0xC9 (201 word address)
-        force DUT.RAM.memory[804] = 32'h2B;
-        force DUT.RAM.memory[805] = 8'h00;
-        force DUT.RAM.memory[806] = 8'h00;
-        force DUT.RAM.memory[807] = 8'h00;
+        // Instruction memory at word address 0.
+        force DUT.RAM.memory[0] = andi_instr[7:0];
+        force DUT.RAM.memory[1] = andi_instr[15:8];
+        force DUT.RAM.memory[2] = andi_instr[23:16];
+        force DUT.RAM.memory[3] = andi_instr[31:24];
 
         Present_state = Default;
     end
@@ -199,9 +190,7 @@ module datapath_ld_tb;
             T1:      Present_state <= T2;
             T2:      Present_state <= T3;
             T3:      Present_state <= T4;
-            T4:      Present_state <= T5;
-            T5:      Present_state <= T6;
-            T6:      Present_state <= T6;
+            T4:      Present_state <= T4;
         endcase
     end
 
@@ -235,7 +224,7 @@ module datapath_ld_tb;
         DIV_op = 0;
 
         case (Present_state)
-            // T0: PCout, MARin, IncPC, Zin
+            // T0-T2: Instruction fetch
             T0: begin
                 PCoutC = 1;
                 MARin = 1;
@@ -243,7 +232,6 @@ module datapath_ld_tb;
                 Zin = 1;
             end
 
-            // T1: Zlowout, PCin, Read, MDRin
             T1: begin
                 ZlowoutC = 1;
                 PCin = 1;
@@ -251,37 +239,23 @@ module datapath_ld_tb;
                 MDRin = 1;
             end
 
-            // T2: MDRout, IRin
             T2: begin
                 MDRoutC = 1;
                 IRin = 1;
             end
 
-            // T3: Grb, BAout, Cout, ADD, Zin
+            // T3: R4 AND 0x71 -> Z
             T3: begin
                 Grb = 1;
                 Rout = 1;
-                BAout = 1;
                 CoutA = 1;
-                ADD = 1;
+                AND_op = 1;
                 Zin = 1;
             end
 
-            // T4: Zlowout, MARin
+            // T4: Zlowout, Gra, Rin
             T4: begin
                 ZlowoutC = 1;
-                MARin = 1;
-            end
-
-            // T5: Read, MDRin
-            T5: begin
-                Read = 1;
-                MDRin = 1;
-            end
-
-            // T6: MDRout, Gra, Rin
-            T6: begin
-                MDRoutC = 1;
                 Gra = 1;
                 Rin = 1;
             end

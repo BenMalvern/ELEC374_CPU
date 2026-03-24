@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module datapath_ld_tb;
+module datapath_ldi_tb;
 
     parameter DATA_WIDTH = 32;
 
@@ -150,9 +150,7 @@ module datapath_ld_tb;
               T1 = 4'd2,
               T2 = 4'd3,
               T3 = 4'd4,
-              T4 = 4'd5,
-              T5 = 4'd6,
-              T6 = 4'd7;
+              T4 = 4'd5;
 
     reg [3:0] Present_state;
 
@@ -166,8 +164,8 @@ module datapath_ld_tb;
         clear = 1'b1;
         #15 clear = 1'b0;
 
-        // ld R0, 0x72(R2)
-		ld_instr[31:27] = 5'b10000; // Load indexed
+        // ldi R0, 0x72(R2)
+		ld_instr[31:27] = 5'b10001; // Load indexed
         ld_instr[26:23] = 4'd0;   // Ra = R0
         ld_instr[22:19] = 4'd2;   // Rb = R2
         ld_instr[18:0]  = 19'h72;  // C = 0x72
@@ -183,12 +181,6 @@ module datapath_ld_tb;
         force DUT.RAM.memory[2] = ld_instr[23:16];
         force DUT.RAM.memory[3] = ld_instr[31:24];
 
-        // data memory at address 0xC9 (201 word address)
-        force DUT.RAM.memory[804] = 32'h2B;
-        force DUT.RAM.memory[805] = 8'h00;
-        force DUT.RAM.memory[806] = 8'h00;
-        force DUT.RAM.memory[807] = 8'h00;
-
         Present_state = Default;
     end
 
@@ -199,9 +191,7 @@ module datapath_ld_tb;
             T1:      Present_state <= T2;
             T2:      Present_state <= T3;
             T3:      Present_state <= T4;
-            T4:      Present_state <= T5;
-            T5:      Present_state <= T6;
-            T6:      Present_state <= T6;
+            T4:      Present_state <= T4;
         endcase
     end
 
@@ -270,18 +260,6 @@ module datapath_ld_tb;
             // T4: Zlowout, MARin
             T4: begin
                 ZlowoutC = 1;
-                MARin = 1;
-            end
-
-            // T5: Read, MDRin
-            T5: begin
-                Read = 1;
-                MDRin = 1;
-            end
-
-            // T6: MDRout, Gra, Rin
-            T6: begin
-                MDRoutC = 1;
                 Gra = 1;
                 Rin = 1;
             end

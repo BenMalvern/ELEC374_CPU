@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module datapath_ld_tb;
+module datapath_ld2_tb;
 
     parameter DATA_WIDTH = 32;
 
@@ -166,14 +166,14 @@ module datapath_ld_tb;
         clear = 1'b1;
         #15 clear = 1'b0;
 
-        // ld R0, 0x72(R2)
+        // ld R1, 0x72(R0)
 		ld_instr[31:27] = 5'b10000; // Load indexed
-        ld_instr[26:23] = 4'd0;   // Ra = R0
-        ld_instr[22:19] = 4'd2;   // Rb = R2
+        ld_instr[26:23] = 4'd1;   // Ra = R1
+        ld_instr[22:19] = 4'd0;   // Rb = R0
         ld_instr[18:0]  = 19'h72;  // C = 0x72
 
         // preload R2 = 0x57
-        force DUT.R2_REG.BUS_MUX_IN = 32'h00000057;
+        force DUT.R0_REG.BUS_MUX_IN = 32'h00000057;
 
         // preload PC = 0
 
@@ -183,11 +183,11 @@ module datapath_ld_tb;
         force DUT.RAM.memory[2] = ld_instr[23:16];
         force DUT.RAM.memory[3] = ld_instr[31:24];
 
-        // data memory at address 0xC9 (201 word address)
-        force DUT.RAM.memory[804] = 32'h2B;
-        force DUT.RAM.memory[805] = 8'h00;
-        force DUT.RAM.memory[806] = 8'h00;
-        force DUT.RAM.memory[807] = 8'h00;
+        // data memory at address 0x72 (114 word address)
+        force DUT.RAM.memory[456] = 32'h2B;
+        force DUT.RAM.memory[457] = 8'h00;
+        force DUT.RAM.memory[458] = 8'h00;
+        force DUT.RAM.memory[459] = 8'h00;
 
         Present_state = Default;
     end

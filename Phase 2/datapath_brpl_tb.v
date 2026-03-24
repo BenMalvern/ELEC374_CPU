@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module datapath_ld_tb;
+module datapath_brpl_tb;
 
     parameter DATA_WIDTH = 32;
 
@@ -11,7 +11,6 @@ module datapath_ld_tb;
     reg PCin, IRin, MARin, HIin, LOin, Zin, MDRin;
     reg InPort_strobe, OutPortin, Cin;
     reg [31:0] external_input;
-
     reg Gra, Grb, Grc;
     reg Rin, Rout, BAout;
     reg CONin;
@@ -20,15 +19,12 @@ module datapath_ld_tb;
     reg SHL_op, ROR_op, ROL_op, NEG_op, NOT_op;
     reg MUL_op, DIV_op;
 
-    // A bus controls
     reg PCoutA, HIoutA, LOoutA, ZhighoutA, ZlowoutA;
     reg MDRoutA, InPortoutA, CoutA;
 
-    // B bus controls
     reg PCoutB, HIoutB, LOoutB, ZhighoutB, ZlowoutB;
     reg MDRoutB, InPortoutB, CoutB;
 
-    // C bus select
     reg ZlowoutC, ZhighoutC, MDRoutC, PCoutC, InPortoutC, CoutC;
 
     wire [DATA_WIDTH-1:0] BusMuxOut_A, BusMuxOut_B, BusMuxOut_C;
@@ -46,10 +42,8 @@ module datapath_ld_tb;
     datapath DUT (
         .clock(clock),
         .clear(clear),
-
         .Read(Read),
         .Write(Write),
-
         .PCin(PCin),
         .IRin(IRin),
         .MARin(MARin),
@@ -61,7 +55,6 @@ module datapath_ld_tb;
         .external_input(external_input),
         .OutPortin(OutPortin),
         .Cin(Cin),
-
         .Gra(Gra),
         .Grb(Grb),
         .Grc(Grc),
@@ -69,9 +62,7 @@ module datapath_ld_tb;
         .Rout(Rout),
         .BAout(BAout),
         .CONin(CONin),
-
         .IncPC(IncPC),
-
         .ADD(ADD),
         .SUB(SUB),
         .AND_op(AND_op),
@@ -85,11 +76,9 @@ module datapath_ld_tb;
         .NOT_op(NOT_op),
         .MUL_op(MUL_op),
         .DIV_op(DIV_op),
-
         .BusMuxOut_A(BusMuxOut_A),
         .BusMuxOut_B(BusMuxOut_B),
         .BusMuxOut_C(BusMuxOut_C),
-
         .PCoutA(PCoutA),
         .HIoutA(HIoutA),
         .LOoutA(LOoutA),
@@ -98,7 +87,6 @@ module datapath_ld_tb;
         .MDRoutA(MDRoutA),
         .InPortoutA(InPortoutA),
         .CoutA(CoutA),
-
         .PCoutB(PCoutB),
         .HIoutB(HIoutB),
         .LOoutB(LOoutB),
@@ -107,14 +95,12 @@ module datapath_ld_tb;
         .MDRoutB(MDRoutB),
         .InPortoutB(InPortoutB),
         .CoutB(CoutB),
-
         .ZlowoutC(ZlowoutC),
         .ZhighoutC(ZhighoutC),
         .MDRoutC(MDRoutC),
         .PCoutC(PCoutC),
         .InPortoutC(InPortoutC),
         .CoutC(CoutC),
-
         .PC_Q(PC_Q),
         .IR_Q(IR_Q),
         .MAR_Q(MAR_Q),
@@ -125,7 +111,6 @@ module datapath_ld_tb;
         .MDR_Q(MDR_Q),
         .InPort_Q(InPort_Q),
         .OutPort_Q(OutPort_Q),
-
         .R0_Q(R0_Q),
         .R1_Q(R1_Q),
         .R2_Q(R2_Q),
@@ -151,43 +136,34 @@ module datapath_ld_tb;
               T2 = 4'd3,
               T3 = 4'd4,
               T4 = 4'd5,
-              T5 = 4'd6,
-              T6 = 4'd7;
+              T5 = 4'd6;
 
     reg [3:0] Present_state;
+    reg [31:0] br_instr;
 
     initial begin
         clock = 0;
         forever #10 clock = ~clock;
     end
 
-    reg [31:0] ld_instr;
     initial begin
         clear = 1'b1;
         #15 clear = 1'b0;
 
-        // ld R0, 0x72(R2)
-		ld_instr[31:27] = 5'b10000; // Load indexed
-        ld_instr[26:23] = 4'd0;   // Ra = R0
-        ld_instr[22:19] = 4'd2;   // Rb = R2
-        ld_instr[18:0]  = 19'h72;  // C = 0x72
+        // brpl R3, 48
+        br_instr[31:27] = 5'b10101;
+        br_instr[26:23] = 4'd3;
+        br_instr[22:19] = 4'b0010; // c2 = brpl
+        br_instr[18:0]  = 19'd48;
 
-        // preload R2 = 0x57
-        force DUT.R2_REG.BUS_MUX_IN = 32'h00000057;
+        // Preload R3 positive so the branch is taken.
+        force DUT.R3_REG.BUS_MUX_IN = 32'h00000005;
 
-        // preload PC = 0
-
-        // instruction memory
-        force DUT.RAM.memory[0] = ld_instr[7:0];
-        force DUT.RAM.memory[1] = ld_instr[15:8];
-        force DUT.RAM.memory[2] = ld_instr[23:16];
-        force DUT.RAM.memory[3] = ld_instr[31:24];
-
-        // data memory at address 0xC9 (201 word address)
-        force DUT.RAM.memory[804] = 32'h2B;
-        force DUT.RAM.memory[805] = 8'h00;
-        force DUT.RAM.memory[806] = 8'h00;
-        force DUT.RAM.memory[807] = 8'h00;
+        // Instruction memory at word address 0.
+        force DUT.RAM.memory[0] = br_instr[7:0];
+        force DUT.RAM.memory[1] = br_instr[15:8];
+        force DUT.RAM.memory[2] = br_instr[23:16];
+        force DUT.RAM.memory[3] = br_instr[31:24];
 
         Present_state = Default;
     end
@@ -200,8 +176,7 @@ module datapath_ld_tb;
             T2:      Present_state <= T3;
             T3:      Present_state <= T4;
             T4:      Present_state <= T5;
-            T5:      Present_state <= T6;
-            T6:      Present_state <= T6;
+            T5:      Present_state <= T5;
         endcase
     end
 
@@ -235,55 +210,47 @@ module datapath_ld_tb;
         DIV_op = 0;
 
         case (Present_state)
-            // T0: PCout, MARin, IncPC, Zin
             T0: begin
                 PCoutC = 1;
-                MARin = 1;
-                IncPC = 1;
-                Zin = 1;
+                MARin  = 1;
+                IncPC  = 1;
+                Zin    = 1;
             end
 
-            // T1: Zlowout, PCin, Read, MDRin
             T1: begin
                 ZlowoutC = 1;
-                PCin = 1;
-                Read = 1;
-                MDRin = 1;
+                PCin     = 1;
+                Read     = 1;
+                MDRin    = 1;
             end
 
-            // T2: MDRout, IRin
             T2: begin
                 MDRoutC = 1;
-                IRin = 1;
+                IRin    = 1;
             end
 
-            // T3: Grb, BAout, Cout, ADD, Zin
+            // Test CON FF with R3.
             T3: begin
-                Grb = 1;
-                Rout = 1;
-                BAout = 1;
-                CoutA = 1;
-                ADD = 1;
-                Zin = 1;
+                Gra   = 1;
+                Rout  = 1;
+                CONin = 1;
             end
 
-            // T4: Zlowout, MARin
+            // Compute PC + C with the current no-Y datapath.
             T4: begin
-                ZlowoutC = 1;
-                MARin = 1;
+                PCoutA = 1;
+                CoutB  = 1;
+                ADD    = 1;
+                Zin    = 1;
             end
 
-            // T5: Read, MDRin
+            // Branch only if CON_FF_Q is true.
             T5: begin
-                Read = 1;
-                MDRin = 1;
-            end
-
-            // T6: MDRout, Gra, Rin
-            T6: begin
-                MDRoutC = 1;
-                Gra = 1;
-                Rin = 1;
+                ZlowoutC = 1;
+                Gra      = 1;
+                Rout     = 1;
+                CONin    = 1;
+                PCin     = 1;
             end
         endcase
     end
