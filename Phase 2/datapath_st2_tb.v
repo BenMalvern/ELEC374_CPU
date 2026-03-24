@@ -272,17 +272,16 @@ module datapath_st2_tb;
                 MARin = 1;
             end
 
-            // T5: Read, MDRin
+            // T5: Gra, Rout, MDRin
             T5: begin
-                Read = 1;
+                Gra = 1;
+                Rout = 1;
                 MDRin = 1;
             end
 
-            // T6: MDRout, Gra, Rin
+            // T6: Write
             T6: begin
-                MDRoutC = 1;
-                Gra = 1;
-                Rin = 1;
+                Write = 1;
             end
         endcase
     end

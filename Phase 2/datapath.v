@@ -228,6 +228,8 @@ module datapath #(parameter DATA_WIDTH = 32)
 	wire [DATA_WIDTH-1:0] Mdatain;
 	wire [8:0] mem_address;
 	assign mem_address = MAR_Q[8:0];
+    wire [DATA_WIDTH-1:0] MDR_bus_source;
+    assign MDR_bus_source = (Read) ? BusMuxOut_C : BusMuxOut_A;
 
     mdr MDR_REG (
         .clk(clock),
@@ -235,7 +237,7 @@ module datapath #(parameter DATA_WIDTH = 32)
         .MDRin(MDRin),
         .Read(Read),
         .Mdatain(Mdatain),
-        .BusMuxOut(BusMuxOut_C),
+        .BusMuxOut(MDR_bus_source),
         .MDR_q(MDR_Q),
         .BusMuxIn_MDR(BusMuxIn_MDR)
     );

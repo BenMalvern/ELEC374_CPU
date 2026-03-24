@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 
-module datapath_addi_tb;
+module datapath_andi_tb;
 
     parameter DATA_WIDTH = 32;
 
@@ -165,16 +165,15 @@ module datapath_addi_tb;
         #15 clear = 1'b0;
 
         // andi R7, R4, 0x71
-        // The opcode bits are documentary here; the control sequence is applied manually.
-        andi_instr[31:27] = 5'b01001;
+        andi_instr[31:27] = 5'b01010;
         andi_instr[26:23] = 4'd7;    // Ra = R7
         andi_instr[22:19] = 4'd4;    // Rb = R4
         andi_instr[18:0]  = 19'h71;  // C = 0x71
 
-        // Initialize R4 = 0x00000075 so the expected result is 0x00000071.
+        // preload R4 = 0x75 so the result should be 0x71
         force DUT.R4_REG.BUS_MUX_IN = 32'h00000075;
 
-        // Instruction memory at word address 0.
+        // instruction memory
         force DUT.RAM.memory[0] = andi_instr[7:0];
         force DUT.RAM.memory[1] = andi_instr[15:8];
         force DUT.RAM.memory[2] = andi_instr[23:16];
@@ -224,7 +223,7 @@ module datapath_addi_tb;
         DIV_op = 0;
 
         case (Present_state)
-            // T0-T2: Instruction fetch
+            // T0-T2: instruction fetch
             T0: begin
                 PCoutC = 1;
                 MARin = 1;
@@ -244,7 +243,7 @@ module datapath_addi_tb;
                 IRin = 1;
             end
 
-            // T3: R4 AND 0x71 -> Z
+            // T3: Grb, Rout, Cout, AND, Zin
             T3: begin
                 Grb = 1;
                 Rout = 1;
