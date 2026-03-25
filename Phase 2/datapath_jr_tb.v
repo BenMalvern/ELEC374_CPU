@@ -83,19 +83,18 @@ module datapath_jr_tb;
 
         // jr R12
         // Opcode is documentary here; the testbench manually drives the control sequence.
-        jr_instr[31:27] = 5'b00000;
+        jr_instr[31:27] = 5'b10100;
         jr_instr[26:23] = 4'd12; // Ra = R12
         jr_instr[22:0]  = 23'd0;
 
-        // Preload R12 = 0xFF, PC = 0x10.
+        // Preload R12 = 0xFF
         force DUT.R12_REG.BUS_MUX_IN = 32'h000000FF;
-        force DUT.PC_REG.BUS_MUX_IN = 32'h00000010;
 
-        // Put the instruction at word address 0x10 since PC starts at 0x10.
-        force DUT.RAM.memory[16 * 4 + 0] = jr_instr[7:0];
-        force DUT.RAM.memory[16 * 4 + 1] = jr_instr[15:8];
-        force DUT.RAM.memory[16 * 4 + 2] = jr_instr[23:16];
-        force DUT.RAM.memory[16 * 4 + 3] = jr_instr[31:24];
+        // Put the instruction at word address 0 since PC starts at 0.
+        force DUT.RAM.memory[0] = jr_instr[7:0];
+        force DUT.RAM.memory[1] = jr_instr[15:8];
+        force DUT.RAM.memory[2] = jr_instr[23:16];
+        force DUT.RAM.memory[3] = jr_instr[31:24];
 
         Present_state = Default;
     end

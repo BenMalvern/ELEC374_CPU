@@ -91,9 +91,13 @@ module datapath_jal_tb;
         jal_instr[14:0]  = 15'd0;
 
         // Preload jump target R4, return-address register R12, and PC.
-        force DUT.R4_REG.BUS_MUX_IN  = 32'h000000FF;
-        force DUT.R12_REG.BUS_MUX_IN = 32'h00000000;
-        force DUT.PC_REG.BUS_MUX_IN  = 32'h00000010;
+        force DUT.PC_REG.q = 32'h00000010;
+        force DUT.R4_REG.q = 32'h000000FF;
+        force DUT.R12_REG.q = 32'h00000000;
+        #1;
+        release DUT.PC_REG.q;
+        release DUT.R4_REG.q;
+        release DUT.R12_REG.q;
 
         // Put the instruction at word address 0x10 since PC starts at 0x10.
         force DUT.RAM.memory[16 * 4 + 0] = jal_instr[7:0];

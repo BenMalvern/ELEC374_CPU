@@ -288,4 +288,20 @@ module datapath_st_tb;
         endcase
     end
 
+    initial begin
+        #100;
+        $display("Before store, M[0x82] = %h%h%h%h",
+            DUT.RAM.memory[8'h82 * 4 + 3],
+            DUT.RAM.memory[8'h82 * 4 + 2],
+            DUT.RAM.memory[8'h82 * 4 + 1],
+            DUT.RAM.memory[8'h82 * 4 + 0]);
+
+        #300;
+        $display("After store,  M[0x82] = %h%h%h%h",
+            DUT.RAM.memory[8'h82 * 4 + 3],
+            DUT.RAM.memory[8'h82 * 4 + 2],
+            DUT.RAM.memory[8'h82 * 4 + 1],
+            DUT.RAM.memory[8'h82 * 4 + 0]);
+    end
+
 endmodule
