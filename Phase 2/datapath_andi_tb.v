@@ -168,7 +168,7 @@ module datapath_andi_tb;
         andi_instr[31:27] = 5'b01010;
         andi_instr[26:23] = 4'd7;    // Ra = R7
         andi_instr[22:19] = 4'd4;    // Rb = R4
-        andi_instr[18:0]  = 19'b1111111111111110111;  // C = 0x71
+        andi_instr[18:0]  = 19'h71;  // C = 0x71
 
         // preload R4 = 0x75 so the result should be 0x71
         force DUT.R4_REG.BUS_MUX_IN = 32'h00000075;
@@ -248,7 +248,7 @@ module datapath_andi_tb;
                 Grb = 1;
                 Rout = 1;
                 CoutA = 1;
-                ADD = 1;
+                OR_op = 1;
                 Zin = 1;
             end
 

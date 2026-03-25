@@ -81,7 +81,7 @@ module datapath_brzr_tb;
         br_instr[18:0]  = 19'd48;
 
         // Zero makes the branch taken.
-        force DUT.R3_REG.BUS_MUX_IN = 32'h00000001;
+        force DUT.R3_REG.BUS_MUX_IN = 32'h00000000;
 
         force DUT.RAM.memory[0] = br_instr[7:0];
         force DUT.RAM.memory[1] = br_instr[15:8];

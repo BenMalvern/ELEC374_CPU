@@ -185,10 +185,10 @@ module datapath_st_tb;
 
         // Initial memory word at word address 0x82 is 0x000000A7.
         // RAM takes a word address and internally multiplies by 4.
-        force DUT.RAM.memory[8'h82 * 4 + 0] = 8'hA7;
-        force DUT.RAM.memory[8'h82 * 4 + 1] = 8'h00;
-        force DUT.RAM.memory[8'h82 * 4 + 2] = 8'h00;
-        force DUT.RAM.memory[8'h82 * 4 + 3] = 8'h00;
+        DUT.RAM.memory[8'h82 * 4 + 0] = 8'hA7;
+        DUT.RAM.memory[8'h82 * 4 + 1] = 8'h00;
+        DUT.RAM.memory[8'h82 * 4 + 2] = 8'h00;
+        DUT.RAM.memory[8'h82 * 4 + 3] = 8'h00;
 
         Present_state = Default;
     end
@@ -296,7 +296,7 @@ module datapath_st_tb;
             DUT.RAM.memory[8'h82 * 4 + 1],
             DUT.RAM.memory[8'h82 * 4 + 0]);
 
-        #300;
+        #200;
         $display("After store,  M[0x82] = %h%h%h%h",
             DUT.RAM.memory[8'h82 * 4 + 3],
             DUT.RAM.memory[8'h82 * 4 + 2],
