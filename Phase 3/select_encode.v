@@ -4,7 +4,9 @@ module select_encode (
     input  wire Grb,
     input  wire Grc,
     input  wire Rin,
-    input  wire Rout,
+    input  wire RoutA,
+	input  wire RoutB,
+	input  wire RoutC,
     input  wire BAout,
 
     output wire [15:0] Rin_sel, // Destination register write enables
