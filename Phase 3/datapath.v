@@ -137,6 +137,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 		.GrcIn(GrcIn),
 
 		.Rin(Rin),
+		.R12in(R12in),
 		.RoutA(RoutA),
 		.RoutB(RoutB),
 		.RoutC(RoutC),
@@ -321,7 +322,7 @@ module datapath #(parameter DATA_WIDTH = 32)
     cla #(DATA_WIDTH) U_PC_INC (
         .Z(pc_plus_4),
         .A(PC_Q),
-        .Bin(32'd4),
+        .Bin(32'd1),
         .sub(1'b0)
     );
 

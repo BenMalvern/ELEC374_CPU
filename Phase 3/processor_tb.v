@@ -2,376 +2,128 @@
 
 module processor_tb;
 
-    parameter DATA_WIDTH = 32;
-
     reg clock;
     reg clear;
-    reg stop;
-
     reg [31:0] external_input;
     reg InPort_strobe;
-    reg OutPortin;
 
-    wire Run;
-    wire Clear;
+    wire [31:0] out_port_data;
+    wire stop;
 
-    // Select / encode signals
-    wire GraA;
-	wire GrbA;
-	wire GrcA;
-	wire GraB;
-	wire GrbB;
-	wire GrcB;
-	wire GraC;
-	wire GrbC;
-	wire GrcC;
-	wire GraIn;
-	wire GrbIn;
-	wire GrcIn;
-    wire Rin;
-    wire RoutA;
-    wire RoutB;
-    wire RoutC;
-    wire BAout;
-
-    // Datapath register control
-    wire PCin;
-    wire IRin;
-    wire MARin;
-    wire MDRin;
-    wire Zin;
-    wire HIin;
-    wire LOin;
-    wire Cin;
-
-    // Memory control
-    wire Read;
-    wire Write;
-
-    // Special control
-    wire IncPC;
-    wire CONin;
-
-    // ALU control
-    wire ADD;
-    wire SUB;
-    wire AND_op;
-    wire OR_op;
-    wire SHR_op;
-    wire SHRA_op;
-    wire SHL_op;
-    wire ROR_op;
-    wire ROL_op;
-    wire NEG_op;
-    wire NOT_op;
-    wire MUL_op;
-    wire DIV_op;
-
-    // A bus drivers
-    wire PCoutA;
-    wire HIoutA;
-    wire LOoutA;
-    wire ZhighoutA;
-    wire ZlowoutA;
-    wire MDRoutA;
-    wire InPortoutA;
-    wire CoutA;
-
-    // B bus drivers
-    wire PCoutB;
-    wire HIoutB;
-    wire LOoutB;
-    wire ZhighoutB;
-    wire ZlowoutB;
-    wire MDRoutB;
-    wire InPortoutB;
-    wire CoutB;
-
-    // C bus drivers
-    wire PCoutC;
-    wire HIoutC;
-    wire LOoutC;
-    wire ZhighoutC;
-    wire ZlowoutC;
-    wire MDRoutC;
-    wire InPortoutC;
-    wire CoutC;
-
-    wire [DATA_WIDTH-1:0] BusMuxOut_A;
-    wire [DATA_WIDTH-1:0] BusMuxOut_B;
-    wire [DATA_WIDTH-1:0] BusMuxOut_C;
-
-    wire [31:0] PC_Q;
-    wire [31:0] IR_Q;
-    wire [31:0] MAR_Q;
-    wire [31:0] HI_Q;
-    wire [31:0] LO_Q;
-    wire [31:0] Z_HI_Q;
-    wire [31:0] Z_LO_Q;
-    wire [31:0] MDR_Q;
-    wire [31:0] InPort_Q;
-    wire [31:0] OutPort_Q;
-    wire [31:0] R0_Q;
-    wire [31:0] R1_Q;
-    wire [31:0] R2_Q;
-    wire [31:0] R3_Q;
-    wire [31:0] R4_Q;
-    wire [31:0] R5_Q;
-    wire [31:0] R6_Q;
-    wire [31:0] R7_Q;
-    wire [31:0] R8_Q;
-    wire [31:0] R9_Q;
-    wire [31:0] R10_Q;
-    wire [31:0] R11_Q;
-    wire [31:0] R12_Q;
-    wire [31:0] R13_Q;
-    wire [31:0] R14_Q;
-    wire [31:0] R15_Q;
-    wire CON_FF_Q;
-
-    reg [31:0] add_instr;
-    reg [31:0] halt_instr;
+    processor DUT (
+        .clock(clock),
+        .clear(clear),
+        .external_input(external_input),
+        .InPort_strobe(InPort_strobe),
+        .out_port_data(out_port_data),
+        .stop(stop)
+    );
 
     initial begin
-        clock = 0;
+        clock = 1'b0;
         forever #10 clock = ~clock;
     end
 
-    control_unit CU (
-        .Clock(clock),
-        .Reset(clear),
-        .Stop(stop),
-        .CON_FF(CON_FF_Q),
-        .IR(IR_Q),
+    initial begin : run_phase3
+        integer i;
 
-        .Run(Run),
-        .Clear(Clear),
-
-        .GraA(GraA),
-		.GrbA(GrbA),
-		.GrcA(GrcA),
-		.GraB(GraB),
-		.GrbB(GrbB),
-		.GrcB(GrcB),
-		.GraC(GraC),
-		.GrbC(GrbC),
-		.GrcC(GrcC),
-		.GraIn(GraIn),
-		.GrbIn(GrbIn),
-		.GrcIn(GrcIn),
-        .Rin(Rin),
-        .RoutA(RoutA),
-        .RoutB(RoutB),
-        .RoutC(RoutC),
-        .BAout(BAout),
-
-        .PCin(PCin),
-        .IRin(IRin),
-        .MARin(MARin),
-        .MDRin(MDRin),
-        .Zin(Zin),
-        .HIin(HIin),
-        .LOin(LOin),
-        .Cin(Cin),
-
-        .Read(Read),
-        .Write(Write),
-
-        .IncPC(IncPC),
-        .CONin(CONin),
-
-        .ADD(ADD),
-        .SUB(SUB),
-        .AND_op(AND_op),
-        .OR_op(OR_op),
-        .SHR_op(SHR_op),
-        .SHRA_op(SHRA_op),
-        .SHL_op(SHL_op),
-        .ROR_op(ROR_op),
-        .ROL_op(ROL_op),
-        .NEG_op(NEG_op),
-        .NOT_op(NOT_op),
-        .MUL_op(MUL_op),
-        .DIV_op(DIV_op),
-
-        .PCoutA(PCoutA),
-        .HIoutA(HIoutA),
-        .LOoutA(LOoutA),
-        .ZhighoutA(ZhighoutA),
-        .ZlowoutA(ZlowoutA),
-        .MDRoutA(MDRoutA),
-        .InPortoutA(InPortoutA),
-        .CoutA(CoutA),
-
-        .PCoutB(PCoutB),
-        .HIoutB(HIoutB),
-        .LOoutB(LOoutB),
-        .ZhighoutB(ZhighoutB),
-        .ZlowoutB(ZlowoutB),
-        .MDRoutB(MDRoutB),
-        .InPortoutB(InPortoutB),
-        .CoutB(CoutB),
-
-        .PCoutC(PCoutC),
-        .HIoutC(HIoutC),
-        .LOoutC(LOoutC),
-        .ZhighoutC(ZhighoutC),
-        .ZlowoutC(ZlowoutC),
-        .MDRoutC(MDRoutC),
-        .InPortoutC(InPortoutC),
-        .CoutC(CoutC)
-    );
-
-    datapath DUT (
-        .clock(clock),
-        .clear(Clear),
-
-        .Read(Read),
-        .Write(Write),
-
-        .PCin(PCin),
-        .IRin(IRin),
-        .MARin(MARin),
-        .HIin(HIin),
-        .LOin(LOin),
-        .Zin(Zin),
-        .MDRin(MDRin),
-        .Cin(Cin),
-        .GraA(GraA),
-		.GrbA(GrbA),
-		.GrcA(GrcA),
-		.GraB(GraB),
-		.GrbB(GrbB),
-		.GrcB(GrcB),
-		.GraC(GraC),
-		.GrbC(GrbC),
-		.GrcC(GrcC),
-		.GraIn(GraIn),
-		.GrbIn(GrbIn),
-		.GrcIn(GrcIn),
-        .Rin(Rin),
-        .RoutA(RoutA),
-        .RoutB(RoutB),
-        .RoutC(RoutC),
-        .BAout(BAout),
-        .CONin(CONin),
-
-        .IncPC(IncPC),
-
-        .ADD(ADD),
-        .SUB(SUB),
-        .AND_op(AND_op),
-        .OR_op(OR_op),
-        .SHR_op(SHR_op),
-        .SHRA_op(SHRA_op),
-        .SHL_op(SHL_op),
-        .ROR_op(ROR_op),
-        .ROL_op(ROL_op),
-        .NEG_op(NEG_op),
-        .NOT_op(NOT_op),
-        .MUL_op(MUL_op),
-        .DIV_op(DIV_op),
-
-        .BusMuxOut_A(BusMuxOut_A),
-        .BusMuxOut_B(BusMuxOut_B),
-        .BusMuxOut_C(BusMuxOut_C),
-
-        .PCoutA(PCoutA),
-        .HIoutA(HIoutA),
-        .LOoutA(LOoutA),
-        .ZhighoutA(ZhighoutA),
-        .ZlowoutA(ZlowoutA),
-        .MDRoutA(MDRoutA),
-        .InPortoutA(InPortoutA),
-        .CoutA(CoutA),
-
-        .PCoutB(PCoutB),
-        .HIoutB(HIoutB),
-        .LOoutB(LOoutB),
-        .ZhighoutB(ZhighoutB),
-        .ZlowoutB(ZlowoutB),
-        .MDRoutB(MDRoutB),
-        .InPortoutB(InPortoutB),
-        .CoutB(CoutB),
-
-        .PCoutC(PCoutC),
-        .HIoutC(HIoutC),
-        .LOoutC(LOoutC),
-        .ZhighoutC(ZhighoutC),
-        .ZlowoutC(ZlowoutC),
-        .MDRoutC(MDRoutC),
-        .InPortoutC(InPortoutC),
-        .CoutC(CoutC),
-
-        .external_input(external_input),
-        .InPort_strobe(InPort_strobe),
-        .OutPortin(OutPortin),
-        .OutPort_Q(OutPort_Q),
-
-        .PC_Q(PC_Q),
-        .IR_Q(IR_Q),
-        .HI_Q(HI_Q),
-        .LO_Q(LO_Q),
-        .Z_HI_Q(Z_HI_Q),
-        .Z_LO_Q(Z_LO_Q),
-        .MDR_Q(MDR_Q),
-        .MAR_Q(MAR_Q),
-        .InPort_Q(InPort_Q),
-
-        .R0_Q(R0_Q),
-        .R1_Q(R1_Q),
-        .R2_Q(R2_Q),
-        .R3_Q(R3_Q),
-        .R4_Q(R4_Q),
-        .R5_Q(R5_Q),
-        .R6_Q(R6_Q),
-        .R7_Q(R7_Q),
-        .R8_Q(R8_Q),
-        .R9_Q(R9_Q),
-        .R10_Q(R10_Q),
-        .R11_Q(R11_Q),
-        .R12_Q(R12_Q),
-        .R13_Q(R13_Q),
-        .R14_Q(R14_Q),
-        .R15_Q(R15_Q),
-        .CON_FF_Q(CON_FF_Q)
-    );
-
-    initial begin
         clear = 1'b1;
-        stop = 1'b0;
-        external_input = 32'b0;
+        external_input = 32'd0;
         InPort_strobe = 1'b0;
-        OutPortin = 1'b0;
 
-        // add R1, R2, R3
-        add_instr[31:27] = 5'b00000;
-        add_instr[26:23] = 4'd1;
-        add_instr[22:19] = 4'd2;
-        add_instr[18:15] = 4'd3;
-        add_instr[14:0] = 15'b0;
+        // Clear the 512-word RAM used by Mini SRC
+        for (i = 0; i < 512; i = i + 1)
+            DUT.DP.RAM.mem[i] = 32'h00000000;
 
-        // halt
-        halt_instr[31:27] = 5'b11111;
-        halt_instr[26:0] = 27'b0;
+        // Phase 3 program image
+        DUT.DP.RAM.mem['h000] = 32'h8A800043; // ldi   R5, 0x43
+        DUT.DP.RAM.mem['h001] = 32'h8AA80006; // ldi   R5, 6(R5)
+        DUT.DP.RAM.mem['h002] = 32'h82000089; // ld    R4, 0x89
+        DUT.DP.RAM.mem['h003] = 32'h8A200004; // ldi   R4, 4(R4)
+        DUT.DP.RAM.mem['h004] = 32'h8027FFF8; // ld    R0, -8(R4)
+        DUT.DP.RAM.mem['h005] = 32'h89000004; // ldi   R2, 4
+        DUT.DP.RAM.mem['h006] = 32'h8A800087; // ldi   R5, 0x87
+        DUT.DP.RAM.mem['h007] = 32'hAA980003; // brmi  R5, 3
+        DUT.DP.RAM.mem['h008] = 32'h8AA80005; // ldi   R5, 5(R5)
+        DUT.DP.RAM.mem['h009] = 32'h80AFFFFD; // ld    R1, -3(R5)
+        DUT.DP.RAM.mem['h00A] = 32'hD0000000; // nop
+        DUT.DP.RAM.mem['h00B] = 32'hA8900002; // brpl  R1, 2
+        DUT.DP.RAM.mem['h00C] = 32'h89A80007; // ldi   R3, 7(R5)
+        DUT.DP.RAM.mem['h00D] = 32'h8B9FFFFC; // ldi   R7, -4(R3)
+        DUT.DP.RAM.mem['h00E] = 32'h03A90000; // add   R7, R5, R2
+        DUT.DP.RAM.mem['h00F] = 32'h48880003; // addi  R1, R1, 3
+        DUT.DP.RAM.mem['h010] = 32'h70880000; // neg   R1, R1
+        DUT.DP.RAM.mem['h011] = 32'h78880000; // not   R1, R1
+        DUT.DP.RAM.mem['h012] = 32'h5088000F; // andi  R1, R1, 0xF
+        DUT.DP.RAM.mem['h013] = 32'h3A010000; // ror   R4, R0, R2
+        DUT.DP.RAM.mem['h014] = 32'h58A00005; // ori   R1, R4, 5
+        DUT.DP.RAM.mem['h015] = 32'h2A090000; // shra  R4, R1, R2
+        DUT.DP.RAM.mem['h016] = 32'h22A90000; // shr   R5, R5, R2
+        DUT.DP.RAM.mem['h017] = 32'h928000A3; // st    0xA3, R5
+        DUT.DP.RAM.mem['h018] = 32'h42810000; // rol   R5, R0, R2
+        DUT.DP.RAM.mem['h019] = 32'h1B900000; // or    R7, R2, R0
+        DUT.DP.RAM.mem['h01A] = 32'h12280000; // and   R4, R5, R0
+        DUT.DP.RAM.mem['h01B] = 32'h93A00089; // st    0x89(R4), R7
+        DUT.DP.RAM.mem['h01C] = 32'h082B8000; // sub   R0, R5, R7
+        DUT.DP.RAM.mem['h01D] = 32'h32290000; // shl   R4, R5, R2
+        DUT.DP.RAM.mem['h01E] = 32'h8B800007; // ldi   R7, 7
+        DUT.DP.RAM.mem['h01F] = 32'h89800019; // ldi   R3, 0x19
+        DUT.DP.RAM.mem['h020] = 32'h69B80000; // mul   R3, R7
+        DUT.DP.RAM.mem['h021] = 32'hC0800000; // mfhi  R1
+        DUT.DP.RAM.mem['h022] = 32'hCB000000; // mflo  R6
+        DUT.DP.RAM.mem['h023] = 32'h61B80000; // div   R3, R7
+        DUT.DP.RAM.mem['h024] = 32'h8C380002; // ldi   R8, 2(R7)
+        DUT.DP.RAM.mem['h025] = 32'h8C9FFFFC; // ldi   R9, -4(R3)
+        DUT.DP.RAM.mem['h026] = 32'h8D300003; // ldi   R10, 3(R6)
+        DUT.DP.RAM.mem['h027] = 32'h8D880005; // ldi   R11, 5(R1)
+        DUT.DP.RAM.mem['h028] = 32'h9D000000; // jal   R10
+        DUT.DP.RAM.mem['h029] = 32'hD8000000; // halt
 
-        // preload source registers
-        force DUT.R2_REG.BUS_MUX_IN = 32'h00000005;
-        force DUT.R3_REG.BUS_MUX_IN = 32'h00000007;
+        // Required initial memory contents
+        DUT.DP.RAM.mem['h089] = 32'h000000A7;
+        DUT.DP.RAM.mem['h0A3] = 32'h00000068;
 
-        // instruction memory
-        force DUT.RAM.memory[0] = add_instr[7:0];
-        force DUT.RAM.memory[1] = add_instr[15:8];
-        force DUT.RAM.memory[2] = add_instr[23:16];
-        force DUT.RAM.memory[3] = add_instr[31:24];
+        // Subroutine at 0xB2
+        DUT.DP.RAM.mem['h0B2] = 32'h07450000; // add R14, R8, R10
+        DUT.DP.RAM.mem['h0B3] = 32'h0ECD8000; // sub R13, R9, R11
+        DUT.DP.RAM.mem['h0B4] = 32'h0F768000; // sub R14, R14, R13
+        DUT.DP.RAM.mem['h0B5] = 32'hA6000000; // jr R12
 
-        force DUT.RAM.memory[4] = halt_instr[7:0];
-        force DUT.RAM.memory[5] = halt_instr[15:8];
-        force DUT.RAM.memory[6] = halt_instr[23:16];
-        force DUT.RAM.memory[7] = halt_instr[31:24];
+        #40;
+        clear = 1'b0;
 
-        #15 clear = 1'b0;
+        wait (stop == 1'b1);
+        #40;
 
+        $display("==============================================");
+        $display("PHASE 3 PROGRAM COMPLETE");
+        $display("==============================================");
+        $display("PC   = %h", DUT.DP.PC_Q);
+        $display("IR   = %h", DUT.DP.IR_Q);
+        $display("HI   = %h", DUT.DP.HI_Q);
+        $display("LO   = %h", DUT.DP.LO_Q);
+        $display("R0   = %h", DUT.DP.R0_Q);
+        $display("R1   = %h", DUT.DP.R1_Q);
+        $display("R2   = %h", DUT.DP.R2_Q);
+        $display("R3   = %h", DUT.DP.R3_Q);
+        $display("R4   = %h", DUT.DP.R4_Q);
+        $display("R5   = %h", DUT.DP.R5_Q);
+        $display("R6   = %h", DUT.DP.R6_Q);
+        $display("R7   = %h", DUT.DP.R7_Q);
+        $display("R8   = %h", DUT.DP.R8_Q);
+        $display("R9   = %h", DUT.DP.R9_Q);
+        $display("R10  = %h", DUT.DP.R10_Q);
+        $display("R11  = %h", DUT.DP.R11_Q);
+        $display("R12  = %h", DUT.DP.R12_Q);
+        $display("R13  = %h", DUT.DP.R13_Q);
+        $display("R14  = %h", DUT.DP.R14_Q);
+        $display("R15  = %h", DUT.DP.R15_Q);
+        $display("MEM[89] = %h", DUT.DP.RAM.mem['h089]);
+        $display("MEM[A3] = %h", DUT.DP.RAM.mem['h0A3]);
+        $display("==============================================");
+
+        #100;
+        $stop;
     end
 
 endmodule
