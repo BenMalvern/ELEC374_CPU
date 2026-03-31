@@ -18,7 +18,7 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire MDRin,
     input wire Cin,
     input wire Gra, Grb, Grc, // Select and encode logic
-	input wire Rin, Rout, BAout, 
+	input wire Rin, RoutA, RoutB, RoutC, BAout, 
 	input wire CONin,
 
     // Special control
@@ -120,7 +120,9 @@ module datapath #(parameter DATA_WIDTH = 32)
 		.Grb(Grb),
 		.Grc(Grc),
 		.Rin(Rin),
-		.Rout(Rout),
+		.RoutA(RoutA),
+		.RoutB(RoutB),
+		.RoutC(RoutC),
 		.BAout(BAout),
 		.Rin_sel(Rin_sel),
 		.RoutA_sel(RoutA_sel),
@@ -130,12 +132,8 @@ module datapath #(parameter DATA_WIDTH = 32)
 	);
 	
 	// BAout gates 0's on bus if R0 is selected
-	wire [DATA_WIDTH-1:0] R0out_A;
 	wire [DATA_WIDTH-1:0] R0out_B;
-	wire [DATA_WIDTH-1:0] R0out_C;
-	assign R0out_A = (BAout && RoutA_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
 	assign R0out_B = (BAout && RoutB_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
-	assign R0out_C = (BAout && RoutC_sel[0]) ? {DATA_WIDTH{1'b0}} : R0_Q;
 	
     // Bus A control vector
     wire [23:0] bus_control_A;
@@ -334,7 +332,7 @@ module datapath #(parameter DATA_WIDTH = 32)
     bus BusMuxA (
         .BusOut(BusMuxOut_A),
         .control(bus_control_A),
-        .BusIn0(R0out_A),
+        .BusIn0(R0_Q),
         .BusIn1(R1_Q),
         .BusIn2(R2_Q),
         .BusIn3(R3_Q),
@@ -392,7 +390,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 	bus BusMuxC (
     .BusOut(BusMuxOut_C),
     .control(bus_control_C),
-    .BusIn0(R0out_C),
+    .BusIn0(R0_Q),
     .BusIn1(R1_Q),
     .BusIn2(R2_Q),
     .BusIn3(R3_Q),

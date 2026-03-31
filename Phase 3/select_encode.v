@@ -37,14 +37,20 @@ module select_encode (
 
     // A bus source register select
     // Usually Gra selects the register for A bus
-    assign RoutA_sel = (Rout | BAout) && Gra ? decRa : 16'b0;
+    assign RoutA_sel = RoutA ? 
+				(({16{Gra}} & decRa) |
+                ({16{Grb}} & decRb) |
+                ({16{Grc}} & decRc)) : 16'b0;
 
     // B bus source register select
     // Usually Grb selects the register for B bus
-    assign RoutB_sel = (Rout | BAout) && Grb ? decRb : 16'b0;
+    assign RoutB_sel = (RoutB | BAout) ? 
+					(({16{Gra}} & decRa) |
+					({16{Grb}} & decRb) |
+					({16{Grc}} & decRc)) : 16'b0;
 	
 	// C bus source register select
-    assign RoutC_sel = Rout ?
+    assign RoutC_sel = RoutC ?
         (({16{Gra}} & decRa) |
          ({16{Grb}} & decRb) |
          ({16{Grc}} & decRc)) : 16'b0;

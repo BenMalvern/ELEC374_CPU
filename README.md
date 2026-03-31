@@ -73,3 +73,9 @@ use the verilog built in functionality for simulating ram memory
 	ram is designed for byte addressing that is little endian
 remove the need for Y register because of 2 buses
 for the select encoder, the a bus drives Gra and b bus drives Grb
+
+### Phase 2 – Control unit
+bus c is now functionaly the same as bus a and B
+	there were issues with getting register outputs onto the c bus (had to use the mdr as an intermediary)
+	this led to certain instructions taking an extra cycle. Now that is fixed.
+also updated the select and encode logic so that you can choose which bus is used from register input/output
