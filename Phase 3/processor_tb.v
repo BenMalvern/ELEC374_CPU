@@ -116,7 +116,8 @@ module processor_tb;
         clear = 1'b0;
 
         wait (stop == 1'b1);
-        #40;
+		  
+        #1000;
 
         $display("==============================================");
         $display("PHASE 3 PROGRAM COMPLETE");
@@ -142,11 +143,11 @@ module processor_tb;
         $display("R12  = %h", DUT.DP.R12_Q);
         $display("R13  = %h", DUT.DP.R13_Q);
         $display("R14  = %h", DUT.DP.R14_Q);
-        $display("R15  = %h", DUT.DP.R15_Q);
-        $display("MEM[89] = %h", read_word('h089));
+        $display("R15  = %h", DUT.DP.R15_Q);			  
+		  $display("MEM[89] = %h", read_word('h089));
         $display("MEM[A3] = %h", read_word('h0A3));
         $display("==============================================");
-
+		  
         #100;
         $stop;
     end
