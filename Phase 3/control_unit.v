@@ -427,9 +427,9 @@ module control_unit (
             end
 
             S_LD3: begin
-                GrbA  = 1'b1;
-                RoutA = 1'b1;
-                CoutB = 1'b1;
+					 CoutA = 1'b1;
+                GrbB  = 1'b1;
+                RoutB = 1'b1;
 					 BAout = 1'b1;
                 ADD   = 1'b1;
                 Zin   = 1'b1;
@@ -452,9 +452,9 @@ module control_unit (
             end
 
             S_ST3: begin
-                GrbA  = 1'b1;
-                RoutA = 1'b1;
-                CoutB = 1'b1;
+					 CoutA = 1'b1;
+                GrbB  = 1'b1;
+                RoutB = 1'b1;
 					 BAout = 1'b1;
                 ADD   = 1'b1;
                 Zin   = 1'b1;
