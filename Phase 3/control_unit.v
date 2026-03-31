@@ -430,6 +430,7 @@ module control_unit (
                 GrbA  = 1'b1;
                 RoutA = 1'b1;
                 CoutB = 1'b1;
+					 BAout = 1'b1;
                 ADD   = 1'b1;
                 Zin   = 1'b1;
             end
@@ -451,9 +452,9 @@ module control_unit (
             end
 
             S_ST3: begin
-                GrbB  = 1'b1;
-                RoutB = 1'b1;
-                CoutA = 1'b1;
+                GrbA  = 1'b1;
+                RoutA = 1'b1;
+                CoutB = 1'b1;
 					 BAout = 1'b1;
                 ADD   = 1'b1;
                 Zin   = 1'b1;
