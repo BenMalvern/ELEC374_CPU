@@ -21,7 +21,7 @@ module datapath #(parameter DATA_WIDTH = 32)
 	input wire GraB, GrbB, GrcB,
 	input wire GraC, GrbC, GrcC,
 	input wire GraIn, GrbIn, GrcIn,
-	input wire Rin, RoutA, RoutB, RoutC, BAout, 
+	input wire Rin, R12in, RoutA, RoutB, RoutC, BAout, 
 	input wire CONin,
 
     // Special control

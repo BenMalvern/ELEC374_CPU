@@ -45,9 +45,10 @@ module processor (
     // control_unit uses active-high Stop to force halt.
     // The testbench does not drive an external stop, so tie it low here.
     wire Stop_in = 1'b0;
+    wire Reset = clear;
 
     control_unit CU (
-        .Clock(Clock),
+        .Clock(clock),
         .Reset(Reset),
         .Stop(Stop_in),
         .CON_FF(CON_FF_Q),
@@ -133,9 +134,6 @@ module processor (
         .CoutC(CoutC)
     );
 
-    // Use the external clear for actual datapath reset.
-    // Also expose the same signal to the control unit as Reset.
-    wire Reset = clear;
 
     datapath DP (
         .clock(clock),

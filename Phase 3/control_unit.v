@@ -95,7 +95,6 @@ module control_unit (
     output reg CoutC
 );
 
-    // Official Mini SRC opcode map from the CPU specification.
     localparam [4:0]
         OP_ADD   = 5'b00000,
         OP_SUB   = 5'b00001,
@@ -131,48 +130,49 @@ module control_unit (
         S_FETCH0  = 7'd1,
         S_FETCH1  = 7'd2,
         S_FETCH2  = 7'd3,
+        S_DECODE  = 7'd4,
 
-        S_RR3     = 7'd4,
-        S_RR4     = 7'd5,
+        S_RR3     = 7'd5,
+        S_RR4     = 7'd6,
 
-        S_IMM3    = 7'd6,
-        S_IMM4    = 7'd7,
+        S_IMM3    = 7'd7,
+        S_IMM4    = 7'd8,
 
-        S_UN3     = 7'd8,
-        S_UN4     = 7'd9,
+        S_UN3     = 7'd9,
+        S_UN4     = 7'd10,
 
-        S_LD3     = 7'd10,
-        S_LD4     = 7'd11,
-        S_LD5     = 7'd12,
-        S_LD6     = 7'd13,
+        S_LD3     = 7'd11,
+        S_LD4     = 7'd12,
+        S_LD5     = 7'd13,
+        S_LD6     = 7'd14,
 
-        S_ST3     = 7'd14,
-        S_ST4     = 7'd15,
-        S_ST5     = 7'd16,
-        S_ST6     = 7'd17,
+        S_ST3     = 7'd15,
+        S_ST4     = 7'd16,
+        S_ST5     = 7'd17,
+        S_ST6     = 7'd18,
 
-        S_BRANCH3 = 7'd18,
-        S_BRANCH4 = 7'd19,
-        S_BRANCH5 = 7'd20,
+        S_BRANCH3 = 7'd19,
+        S_BRANCH4 = 7'd20,
+        S_BRANCH5 = 7'd21,
 
-        S_JR3     = 7'd21,
+        S_JR3     = 7'd22,
 
-        S_JAL3    = 7'd22,
-        S_JAL4    = 7'd23,
+        S_JAL3    = 7'd23,
+        S_JAL4    = 7'd24,
 
-        S_MUL3    = 7'd24,
-        S_MUL4    = 7'd25,
-        S_MUL5    = 7'd26,
+        S_MUL3    = 7'd25,
+        S_MUL4    = 7'd26,
+        S_MUL5    = 7'd27,
 
-        S_DIV3    = 7'd27,
-        S_DIV4    = 7'd28,
-        S_DIV5    = 7'd29,
+        S_DIV3    = 7'd28,
+        S_DIV4    = 7'd29,
+        S_DIV5    = 7'd30,
 
-        S_MFHI3   = 7'd30,
-        S_MFLO3   = 7'd31,
+        S_MFHI3   = 7'd31,
+        S_MFLO3   = 7'd32,
 
-        S_IN3     = 7'd32,
-        S_OUT3    = 7'd33,
+        S_IN3     = 7'd33,
+        S_OUT3    = 7'd34,
 
         S_HALT    = 7'd63;
 
@@ -191,14 +191,14 @@ module control_unit (
 
         if (Stop) begin
             next_state = S_HALT;
-        end
-        else begin
+        end else begin
             case (present_state)
-                S_RESET:  next_state = S_FETCH0;
-                S_FETCH0: next_state = S_FETCH1;
-                S_FETCH1: next_state = S_FETCH2;
+                S_RESET:   next_state = S_FETCH0;
+                S_FETCH0:  next_state = S_FETCH1;
+                S_FETCH1:  next_state = S_FETCH2;
+                S_FETCH2:  next_state = S_DECODE;
 
-                S_FETCH2: begin
+                S_DECODE: begin
                     case (opcode)
                         OP_ADD, OP_SUB, OP_AND, OP_OR, OP_SHR, OP_SHRA, OP_SHL, OP_ROR, OP_ROL:
                             next_state = S_RR3;
@@ -357,7 +357,9 @@ module control_unit (
                 IRin    = 1'b1;
             end
 
-            // add, sub, and, or, shr, shra, shl, ror, rol
+            S_DECODE: begin
+            end
+
             S_RR3: begin
                 GrbA  = 1'b1;
                 RoutA = 1'b1;
@@ -385,7 +387,6 @@ module control_unit (
                 Rin      = 1'b1;
             end
 
-            // ldi, addi, andi, ori
             S_IMM3: begin
                 CoutA = 1'b1;
                 GrbB  = 1'b1;
@@ -407,7 +408,6 @@ module control_unit (
                 Rin      = 1'b1;
             end
 
-            // neg, not
             S_UN3: begin
                 GrbA  = 1'b1;
                 RoutA = 1'b1;
@@ -426,7 +426,6 @@ module control_unit (
                 Rin      = 1'b1;
             end
 
-            // ld Ra, C(Rb)
             S_LD3: begin
                 GrbA  = 1'b1;
                 RoutA = 1'b1;
@@ -451,7 +450,6 @@ module control_unit (
                 Rin     = 1'b1;
             end
 
-            // st C(Rb), Ra
             S_ST3: begin
                 GrbA  = 1'b1;
                 RoutA = 1'b1;
@@ -475,8 +473,6 @@ module control_unit (
                 Write = 1'b1;
             end
 
-            // brzr, brnz, brpl, brmi
-            // PC already contains PC+1 after fetch, so here we compute PC + C
             S_BRANCH3: begin
                 GraA  = 1'b1;
                 RoutA = 1'b1;
@@ -497,15 +493,12 @@ module control_unit (
                 end
             end
 
-            // jr Ra
             S_JR3: begin
                 GraC  = 1'b1;
                 RoutC = 1'b1;
                 PCin  = 1'b1;
             end
 
-            // jal Ra: R12 <- PC, PC <- R[Ra]
-            // PC already equals return address after fetch.
             S_JAL3: begin
                 PCoutC = 1'b1;
                 R12in  = 1'b1;
@@ -517,7 +510,6 @@ module control_unit (
                 PCin  = 1'b1;
             end
 
-            // mul Ra, Rb  => HI, LO
             S_MUL3: begin
                 GraA   = 1'b1;
                 RoutA  = 1'b1;
@@ -537,7 +529,6 @@ module control_unit (
                 LOin     = 1'b1;
             end
 
-            // div Ra, Rb  => HI, LO
             S_DIV3: begin
                 GraA   = 1'b1;
                 RoutA  = 1'b1;
@@ -557,31 +548,27 @@ module control_unit (
                 LOin     = 1'b1;
             end
 
-            // mfhi Ra
             S_MFHI3: begin
                 HIoutC = 1'b1;
                 GraIn  = 1'b1;
                 Rin    = 1'b1;
             end
 
-            // mflo Ra
             S_MFLO3: begin
                 LOoutC = 1'b1;
                 GraIn  = 1'b1;
                 Rin    = 1'b1;
             end
 
-            // in Ra
             S_IN3: begin
                 InPortoutC = 1'b1;
                 GraIn      = 1'b1;
                 Rin        = 1'b1;
             end
 
-            // out Ra
             S_OUT3: begin
-                GraC     = 1'b1;
-                RoutC    = 1'b1;
+                GraC      = 1'b1;
+                RoutC     = 1'b1;
                 OutPortin = 1'b1;
             end
 
