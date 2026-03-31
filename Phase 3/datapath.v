@@ -17,7 +17,10 @@ module datapath #(parameter DATA_WIDTH = 32)
     input wire Zin, // enables both Z registers
     input wire MDRin,
     input wire Cin,
-    input wire Gra, Grb, Grc, // Select and encode logic
+    input wire GraA, GrbA, GrcA, // Select and encode logic
+	input wire GraB, GrbB, GrcB,
+	input wire GraC, GrbC, GrcC,
+	input wire GraIn, GrbIn, GrcIn,
 	input wire Rin, RoutA, RoutB, RoutC, BAout, 
 	input wire CONin,
 
@@ -116,9 +119,23 @@ module datapath #(parameter DATA_WIDTH = 32)
 	
 	select_encode SELECT_ENCODE (
 		.IR(IR_Q),
-		.Gra(Gra),
-		.Grb(Grb),
-		.Grc(Grc),
+
+		.GraA(GraA),
+		.GrbA(GrbA),
+		.GrcA(GrcA),
+
+		.GraB(GraB),
+		.GrbB(GrbB),
+		.GrcB(GrcB),
+
+		.GraC(GraC),
+		.GrbC(GrbC),
+		.GrcC(GrcC),
+
+		.GraIn(GraIn),
+		.GrbIn(GrbIn),
+		.GrcIn(GrcIn),
+
 		.Rin(Rin),
 		.RoutA(RoutA),
 		.RoutB(RoutB),

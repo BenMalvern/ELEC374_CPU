@@ -16,9 +16,18 @@ module processor_tb;
     wire Clear;
 
     // Select / encode signals
-    wire Gra;
-    wire Grb;
-    wire Grc;
+    wire GraA;
+	wire GrbA;
+	wire GrcA;
+	wire GraB;
+	wire GrbB;
+	wire GrcB;
+	wire GraC;
+	wire GrbC;
+	wire GrcC;
+	wire GraIn;
+	wire GrbIn;
+	wire GrcIn;
     wire Rin;
     wire RoutA;
     wire RoutB;
@@ -138,9 +147,18 @@ module processor_tb;
         .Run(Run),
         .Clear(Clear),
 
-        .Gra(Gra),
-        .Grb(Grb),
-        .Grc(Grc),
+        .GraA(GraA),
+		.GrbA(GrbA),
+		.GrcA(GrcA),
+		.GraB(GraB),
+		.GrbB(GrbB),
+		.GrcB(GrcB),
+		.GraC(GraC),
+		.GrbC(GrbC),
+		.GrcC(GrcC),
+		.GraIn(GraIn),
+		.GrbIn(GrbIn),
+		.GrcIn(GrcIn),
         .Rin(Rin),
         .RoutA(RoutA),
         .RoutB(RoutB),
@@ -219,9 +237,18 @@ module processor_tb;
         .Zin(Zin),
         .MDRin(MDRin),
         .Cin(Cin),
-        .Gra(Gra),
-        .Grb(Grb),
-        .Grc(Grc),
+        .GraA(GraA),
+		.GrbA(GrbA),
+		.GrcA(GrcA),
+		.GraB(GraB),
+		.GrbB(GrbB),
+		.GrcB(GrcB),
+		.GraC(GraC),
+		.GrbC(GrbC),
+		.GrcC(GrcC),
+		.GraIn(GraIn),
+		.GrbIn(GrbIn),
+		.GrcIn(GrcIn),
         .Rin(Rin),
         .RoutA(RoutA),
         .RoutB(RoutB),

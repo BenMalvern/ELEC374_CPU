@@ -11,9 +11,18 @@ module control_unit (
     output reg Clear,
 
     // Select / encode signals
-    output reg Gra,
-    output reg Grb,
-    output reg Grc,
+    output reg GraA,
+	output reg GrbA,
+	output reg GrcA,
+	output reg GraB,
+	output reg GrbB,
+	output reg GrcB,
+	output reg GraC,
+	output reg GrbC,
+	output reg GrcC,
+	output reg GraIn,
+	output reg GrbIn,
+	output reg GrcIn,
     output reg Rin,
     output reg RoutA,
     output reg RoutB,
@@ -80,7 +89,7 @@ module control_unit (
     output reg ZhighoutC,
     output reg ZlowoutC,
     output reg MDRoutC,
-    output reg InPortoutC,
+    output reg InPortoutC, 
     output reg CoutC
 );
 
@@ -140,8 +149,11 @@ module control_unit (
         // Default all outputs low
         Run = 1'b1; Clear = 1'b0;
 
-		Gra = 1'b0; Grb = 1'b0; Grc = 1'b0; Rin = 1'b0;
-		RoutA = 1'b0; RoutB = 1'b0; RoutC = 1'b0; BAout = 1'b0;
+		GraA = 1'b0; GrbA = 1'b0; GrcA = 1'b0; GraB = 1'b0;
+		GrbB = 1'b0; GrcB = 1'b0; GraC = 1'b0; GrbC = 1'b0;
+		GrcC = 1'b0; GraIn = 1'b0; GrbIn = 1'b0; GrcIn = 1'b0;
+		Rin = 1'b0; RoutA = 1'b0; RoutB = 1'b0; RoutC = 1'b0;
+		BAout = 1'b0;
 
 		PCin = 1'b0; IRin = 1'b0; MARin = 1'b0; MDRin = 1'b0;
 		Zin = 1'b0; HIin = 1'b0; LOin = 1'b0; Cin = 1'b0;
@@ -188,9 +200,9 @@ module control_unit (
             end
 
             add3: begin
-                Grb = 1'b1;
+                GrbA = 1'b1;
                 RoutA = 1'b1; // Rb on A bus
-                Grc = 1'b1;
+                GrcB = 1'b1;
                 RoutB = 1'b1; // Rc on B bus
                 ADD = 1'b1;
                 Zin = 1'b1; // ALU result in Z
@@ -198,7 +210,7 @@ module control_unit (
 
             add4: begin
                 ZlowoutC = 1'b1;
-                Gra = 1'b1;
+                GraIn = 1'b1;
                 Rin = 1'b1; // Write result to Ra
             end
 
