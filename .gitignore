@@ -39,6 +39,8 @@ vsim.wlf
 *.asm
 *.eda
 *.chg
+*.txt
+*.json
 
 # OS junk
 .DS_Store
